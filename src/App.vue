@@ -5,6 +5,7 @@ import VueHtml from './components/practices/basic/VueHtml.vue'
 import VueHtmlXSS from './components/practices/basic/VueHtmlXSS.vue'
 import VueText from './components/practices/basic/VueText.vue'
 import VueBind from './components/practices/basic/VueBind.vue'
+import VueBindClass from './components/practices/basic/VueBindClass.vue'
 </script>
 
 <template>
@@ -52,6 +53,13 @@ import VueBind from './components/practices/basic/VueBind.vue'
       <p>v-bind 디렉티브(:속성명)를 활용한 동적 속성 및 상태 연결 예제입니다.</p>
       <VueBind />
     </section>
+
+    <!-- 섹션 7 -->
+    <section class="card">
+      <h2>7. Vue Bind 클래스 바인딩</h2>
+      <p>v-bind:class 객체 및 배열 형식을 활용한 동적 클래스 적용 예제입니다.</p>
+      <VueBindClass />
+    </section>
   </div>
 </template>
 
@@ -75,7 +83,7 @@ h1 {
   padding: 24px;
   margin-bottom: 24px;
   background-color: #ffffff;
-  color: #0f172a;
+  color: #1e293b;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
@@ -93,16 +101,6 @@ h1 {
   color: #475569;
   font-size: 0.95rem;
   margin-bottom: 16px;
-}
-
-/* 카드 내부 컴포넌트 글자색 강제 고정 (다크모드에서도 글씨가 잘 보이도록) */
-.card :deep(h2),
-.card :deep(h3),
-.card :deep(h4),
-.card :deep(p),
-.card :deep(span),
-.card :deep(div) {
-  color: #1e293b;
 }
 
 .card :deep(button) {
