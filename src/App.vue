@@ -3,13 +3,115 @@ import SampleOne from './components/practices/basic/SampleOne.vue'
 import SampleTwo from './components/practices/basic/SampleTwo.vue'
 import VueHtml from './components/practices/basic/VueHtml.vue'
 import VueHtmlXSS from './components/practices/basic/VueHtmlXSS.vue'
+import VueText from './components/practices/basic/VueText.vue'
+import VueBind from './components/practices/basic/VueBind.vue'
 </script>
 
 <template>
-  <div style="padding: 20px">
-    <SampleOne />
-    <SampleTwo />
-    <VueHtml />
-    <VueHtmlXSS />
+  <div class="container">
+    <h1>Vue3 기초 실습 노트</h1>
+
+    <!-- 섹션 1 -->
+    <section class="card">
+      <h2>1. Sample One</h2>
+      <p>첫 번째 기본 실습 예제입니다.</p>
+      <SampleOne />
+    </section>
+
+    <!-- 섹션 2 -->
+    <section class="card">
+      <h2>2. Sample Two</h2>
+      <p>두 번째 기본 실습 예제입니다.</p>
+      <SampleTwo />
+    </section>
+
+    <!-- 섹션 3 -->
+    <section class="card">
+      <h2>3. Vue HTML 바인딩</h2>
+      <p>v-html 디렉티브 기본 활용 예제입니다.</p>
+      <VueHtml />
+    </section>
+
+    <!-- 섹션 4 -->
+    <section class="card">
+      <h2>4. Vue HTML XSS</h2>
+      <p>v-html 사용 시 XSS 보안 주의사항 실습 예제입니다.</p>
+      <VueHtmlXSS />
+    </section>
+
+    <!-- 섹션 5 -->
+    <section class="card">
+      <h2>5. Vue Text 바인딩</h2>
+      <p>v-text 디렉티브와 일반 보간법({{ }}) 비교 예제입니다.</p>
+      <VueText />
+    </section>
+
+    <!-- 섹션 6 -->
+    <section class="card">
+      <h2>6. Vue Bind 속성 바인딩</h2>
+      <p>v-bind 디렉티브(:속성명)를 활용한 동적 속성 및 상태 연결 예제입니다.</p>
+      <VueBind />
+    </section>
   </div>
 </template>
+
+<style scoped>
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+h1 {
+  text-align: center;
+  color: #42b883;
+  margin-bottom: 30px;
+}
+
+.card {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  background-color: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.card h2 {
+  margin-top: 0;
+  color: #0f172a;
+  font-size: 1.3rem;
+  font-weight: 700;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.card p {
+  color: #475569;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+/* 카드 내부 컴포넌트 글자색 강제 고정 (다크모드에서도 글씨가 잘 보이도록) */
+.card :deep(h2),
+.card :deep(h3),
+.card :deep(h4),
+.card :deep(p),
+.card :deep(span),
+.card :deep(div) {
+  color: #1e293b;
+}
+
+.card :deep(button) {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #f1f5f9;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+}
+</style>
