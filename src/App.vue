@@ -10,6 +10,7 @@ import VueBindStyle from './components/practices/basic/VueBindStyle.vue'
 import VueBindShorthand from './components/practices/basic/VueBindShorthand.vue'
 import VueIf from './components/practices/basic/VueIf.vue'
 import VueShow from './components/practices/basic/VueShow.vue'
+import VueFor from './components/practices/basic/VueFor.vue'
 </script>
 
 <template>
@@ -91,6 +92,13 @@ import VueShow from './components/practices/basic/VueShow.vue'
       <h2>11. Vue Show 조건부 표시</h2>
       <p>v-show 디렉티브(display: none 전환)를 활용한 조건부 표시 예제입니다.</p>
       <VueShow />
+    </section>
+
+    <!-- 섹션 12 -->
+    <section class="card">
+      <h2>12. Vue For 리스트 렌더링</h2>
+      <p>v-for 디렉티브를 활용한 배열 및 객체 리스트 반복 렌더링 예제입니다.</p>
+      <VueFor />
     </section>
   </div>
 </template>
