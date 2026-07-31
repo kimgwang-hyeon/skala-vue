@@ -17,6 +17,7 @@ import VueOnce from './components/practices/basic/VueOnce.vue'
 import VueMemo from './components/practices/basic/VueMemo.vue'
 import EventBasic from './components/practices/basic/EventBasic.vue'
 import EventObject from './components/practices/basic/EventObject.vue'
+import EventModifier from './components/practices/basic/EventModifier.vue'
 </script>
 
 <template>
@@ -147,6 +148,13 @@ import EventObject from './components/practices/basic/EventObject.vue'
       <h2>18. Event Object 이벤트 객체</h2>
       <p>v-on 이벤트 객체($event) 및 파라미터 전달 활용 예제입니다.</p>
       <EventObject />
+    </section>
+
+    <!-- 섹션 19 -->
+    <section class="card">
+      <h2>19. Event Modifier 이벤트 수식어</h2>
+      <p>이벤트 수식어(.prevent, .stop 등)를 활용한 이벤트 제어 예제입니다.</p>
+      <EventModifier />
     </section>
   </div>
 </template>
