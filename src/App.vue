@@ -6,6 +6,8 @@ import VueHtmlXSS from './components/practices/basic/VueHtmlXSS.vue'
 import VueText from './components/practices/basic/VueText.vue'
 import VueBind from './components/practices/basic/VueBind.vue'
 import VueBindClass from './components/practices/basic/VueBindClass.vue'
+import VueBindStyle from './components/practices/basic/VueBindStyle.vue'
+import VueBindShorthand from './components/practices/basic/VueBindShorthand.vue'
 </script>
 
 <template>
@@ -59,6 +61,20 @@ import VueBindClass from './components/practices/basic/VueBindClass.vue'
       <h2>7. Vue Bind 클래스 바인딩</h2>
       <p>v-bind:class 객체 및 배열 형식을 활용한 동적 클래스 적용 예제입니다.</p>
       <VueBindClass />
+    </section>
+
+    <!-- 섹션 8 -->
+    <section class="card">
+      <h2>8. Vue Bind 스타일 바인딩</h2>
+      <p>v-bind:style 객체 및 배열 형식을 활용한 동적 스타일 적용 예제입니다.</p>
+      <VueBindStyle />
+    </section>
+
+    <!-- 섹션 9 -->
+    <section class="card">
+      <h2>9. Vue Bind 동일 이름 단축 구문</h2>
+      <p>Vue 3.4+ Same-name Shorthand(:속성명) 단축 바인딩 예제입니다.</p>
+      <VueBindShorthand />
     </section>
   </div>
 </template>
