@@ -113,5 +113,14 @@ h1 {
   color: #0f172a;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card :deep(button:disabled) {
+  background-color: #e2e8f0;
+  color: #94a3b8;
+  border-color: #cbd5e1;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 </style>
