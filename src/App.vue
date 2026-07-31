@@ -19,6 +19,7 @@ import EventBasic from './components/practices/basic/EventBasic.vue'
 import EventObject from './components/practices/basic/EventObject.vue'
 import EventModifier from './components/practices/basic/EventModifier.vue'
 import VueModelBasic from './components/practices/basic/VueModelBasic.vue'
+import VueModelEventForm from './components/practices/basic/VueModelEventForm.vue'
 </script>
 
 <template>
@@ -163,6 +164,13 @@ import VueModelBasic from './components/practices/basic/VueModelBasic.vue'
       <h2>20. Vue Model Basic 양방향 바인딩</h2>
       <p>v-model 디렉티브를 활용한 양방향 데이터 바인딩 및 동작 원리 예제입니다.</p>
       <VueModelBasic />
+    </section>
+
+    <!-- 섹션 21 -->
+    <section class="card">
+      <h2>21. Vue Model Form 양방향 바인딩 폼 요소</h2>
+      <p>Textarea, Checkbox, Radio, Select 등 다양한 HTML 폼 요소와 v-model 매핑 예제입니다.</p>
+      <VueModelEventForm />
     </section>
   </div>
 </template>
