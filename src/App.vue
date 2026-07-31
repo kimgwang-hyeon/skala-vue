@@ -14,6 +14,7 @@ import VueFor from './components/practices/basic/VueFor.vue'
 import VuePre from './components/practices/basic/VuePre.vue'
 import VueCloak from './components/practices/basic/VueCloak.vue'
 import VueOnce from './components/practices/basic/VueOnce.vue'
+import VueMemo from './components/practices/basic/VueMemo.vue'
 </script>
 
 <template>
@@ -123,6 +124,13 @@ import VueOnce from './components/practices/basic/VueOnce.vue'
       <h2>15. Vue Once 일회성 렌더링</h2>
       <p>v-once 디렉티브를 활용한 최초 1회 렌더링(상태 변경 시 재렌더링 방지) 예제입니다.</p>
       <VueOnce />
+    </section>
+
+    <!-- 섹션 16 -->
+    <section class="card">
+      <h2>16. Vue Memo 조건부 재렌더링</h2>
+      <p>v-memo 디렉티브를 활용한 조건부 트이/서브트리 렌더링 메모이제이션 최적화 예제입니다.</p>
+      <VueMemo />
     </section>
   </div>
 </template>
