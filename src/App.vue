@@ -11,6 +11,7 @@ import VueBindShorthand from './components/practices/basic/VueBindShorthand.vue'
 import VueIf from './components/practices/basic/VueIf.vue'
 import VueShow from './components/practices/basic/VueShow.vue'
 import VueFor from './components/practices/basic/VueFor.vue'
+import VuePre from './components/practices/basic/VuePre.vue'
 </script>
 
 <template>
@@ -99,6 +100,13 @@ import VueFor from './components/practices/basic/VueFor.vue'
       <h2>12. Vue For 리스트 렌더링</h2>
       <p>v-for 디렉티브를 활용한 배열 및 객체 리스트 반복 렌더링 예제입니다.</p>
       <VueFor />
+    </section>
+
+    <!-- 섹션 13 -->
+    <section class="card">
+      <h2>13. Vue Pre 컴파일 스킵</h2>
+      <p>v-pre 디렉티브를 활용한 컴파일 스킵(원시 콧수염 태그 그대로 출력) 예제입니다.</p>
+      <VuePre />
     </section>
   </div>
 </template>
