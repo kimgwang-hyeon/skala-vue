@@ -15,6 +15,7 @@ import VuePre from './components/practices/basic/VuePre.vue'
 import VueCloak from './components/practices/basic/VueCloak.vue'
 import VueOnce from './components/practices/basic/VueOnce.vue'
 import VueMemo from './components/practices/basic/VueMemo.vue'
+import EventBasic from './components/practices/basic/EventBasic.vue'
 </script>
 
 <template>
@@ -131,6 +132,13 @@ import VueMemo from './components/practices/basic/VueMemo.vue'
       <h2>16. Vue Memo 조건부 재렌더링</h2>
       <p>v-memo 디렉티브를 활용한 조건부 트이/서브트리 렌더링 메모이제이션 최적화 예제입니다.</p>
       <VueMemo />
+    </section>
+
+    <!-- 섹션 17 -->
+    <section class="card">
+      <h2>17. Event Basic 이벤트 바인딩</h2>
+      <p>v-on 디렉티브(@이벤트명)를 활용한 기본 이벤트 핸들링 예제입니다.</p>
+      <EventBasic />
     </section>
   </div>
 </template>
