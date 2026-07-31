@@ -9,6 +9,7 @@ import VueBindClass from './components/practices/basic/VueBindClass.vue'
 import VueBindStyle from './components/practices/basic/VueBindStyle.vue'
 import VueBindShorthand from './components/practices/basic/VueBindShorthand.vue'
 import VueIf from './components/practices/basic/VueIf.vue'
+import VueShow from './components/practices/basic/VueShow.vue'
 </script>
 
 <template>
@@ -83,6 +84,13 @@ import VueIf from './components/practices/basic/VueIf.vue'
       <h2>10. Vue If 조건부 렌더링</h2>
       <p>v-if, v-else-if, v-else 디렉티브를 활용한 조건부 렌더링 예제입니다.</p>
       <VueIf />
+    </section>
+
+    <!-- 섹션 11 -->
+    <section class="card">
+      <h2>11. Vue Show 조건부 표시</h2>
+      <p>v-show 디렉티브(display: none 전환)를 활용한 조건부 표시 예제입니다.</p>
+      <VueShow />
     </section>
   </div>
 </template>
