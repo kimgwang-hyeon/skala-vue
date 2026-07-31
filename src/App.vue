@@ -8,6 +8,7 @@ import VueBind from './components/practices/basic/VueBind.vue'
 import VueBindClass from './components/practices/basic/VueBindClass.vue'
 import VueBindStyle from './components/practices/basic/VueBindStyle.vue'
 import VueBindShorthand from './components/practices/basic/VueBindShorthand.vue'
+import VueIf from './components/practices/basic/VueIf.vue'
 </script>
 
 <template>
@@ -75,6 +76,13 @@ import VueBindShorthand from './components/practices/basic/VueBindShorthand.vue'
       <h2>9. Vue Bind 동일 이름 단축 구문</h2>
       <p>Vue 3.4+ Same-name Shorthand(:속성명) 단축 바인딩 예제입니다.</p>
       <VueBindShorthand />
+    </section>
+
+    <!-- 섹션 10 -->
+    <section class="card">
+      <h2>10. Vue If 조건부 렌더링</h2>
+      <p>v-if, v-else-if, v-else 디렉티브를 활용한 조건부 렌더링 예제입니다.</p>
+      <VueIf />
     </section>
   </div>
 </template>
