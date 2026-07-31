@@ -18,6 +18,7 @@ import VueMemo from './components/practices/basic/VueMemo.vue'
 import EventBasic from './components/practices/basic/EventBasic.vue'
 import EventObject from './components/practices/basic/EventObject.vue'
 import EventModifier from './components/practices/basic/EventModifier.vue'
+import VueModelBasic from './components/practices/basic/VueModelBasic.vue'
 </script>
 
 <template>
@@ -155,6 +156,13 @@ import EventModifier from './components/practices/basic/EventModifier.vue'
       <h2>19. Event Modifier 이벤트 수식어</h2>
       <p>이벤트 수식어(.prevent, .stop 등)를 활용한 이벤트 제어 예제입니다.</p>
       <EventModifier />
+    </section>
+
+    <!-- 섹션 20 -->
+    <section class="card">
+      <h2>20. Vue Model Basic 양방향 바인딩</h2>
+      <p>v-model 디렉티브를 활용한 양방향 데이터 바인딩 및 동작 원리 예제입니다.</p>
+      <VueModelBasic />
     </section>
   </div>
 </template>
