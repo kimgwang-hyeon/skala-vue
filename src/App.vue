@@ -21,6 +21,7 @@ import EventModifier from './components/practices/basic/EventModifier.vue'
 import VueModelBasic from './components/practices/basic/VueModelBasic.vue'
 import VueModelEventForm from './components/practices/basic/VueModelEventForm.vue'
 import VueModelModifier from './components/practices/basic/VueModelModifier.vue'
+import VueStyle from './components/practices/basic/VueStyle.vue'
 </script>
 
 <template>
@@ -179,6 +180,13 @@ import VueModelModifier from './components/practices/basic/VueModelModifier.vue'
       <h2>22. Vue Model Modifier 양방향 바인딩 수식어</h2>
       <p>v-model 수식어(.lazy, .number, .trim 등) 활용 및 수식어 체이닝 예제입니다.</p>
       <VueModelModifier />
+    </section>
+
+    <!-- 섹션 23 -->
+    <section class="card">
+      <h2>23. Vue Style 범위를 갖는 스코프 스타일</h2>
+      <p>scoped 스타일 정의 및 외부 CSS 연동 활용 예제입니다.</p>
+      <VueStyle />
     </section>
   </div>
 </template>
