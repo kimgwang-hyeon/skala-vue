@@ -16,6 +16,7 @@ import VueCloak from './components/practices/basic/VueCloak.vue'
 import VueOnce from './components/practices/basic/VueOnce.vue'
 import VueMemo from './components/practices/basic/VueMemo.vue'
 import EventBasic from './components/practices/basic/EventBasic.vue'
+import EventObject from './components/practices/basic/EventObject.vue'
 </script>
 
 <template>
@@ -139,6 +140,13 @@ import EventBasic from './components/practices/basic/EventBasic.vue'
       <h2>17. Event Basic 이벤트 바인딩</h2>
       <p>v-on 디렉티브(@이벤트명)를 활용한 기본 이벤트 핸들링 예제입니다.</p>
       <EventBasic />
+    </section>
+
+    <!-- 섹션 18 -->
+    <section class="card">
+      <h2>18. Event Object 이벤트 객체</h2>
+      <p>v-on 이벤트 객체($event) 및 파라미터 전달 활용 예제입니다.</p>
+      <EventObject />
     </section>
   </div>
 </template>
