@@ -13,6 +13,7 @@ import VueShow from './components/practices/basic/VueShow.vue'
 import VueFor from './components/practices/basic/VueFor.vue'
 import VuePre from './components/practices/basic/VuePre.vue'
 import VueCloak from './components/practices/basic/VueCloak.vue'
+import VueOnce from './components/practices/basic/VueOnce.vue'
 </script>
 
 <template>
@@ -115,6 +116,13 @@ import VueCloak from './components/practices/basic/VueCloak.vue'
       <h2>14. Vue Cloak 마스킹 방지</h2>
       <p>v-cloak 디렉티브를 활용한 초기 로딩 시 콧수염 태그 깜빡임(FOUC) 방지 예제입니다.</p>
       <VueCloak />
+    </section>
+
+    <!-- 섹션 15 -->
+    <section class="card">
+      <h2>15. Vue Once 일회성 렌더링</h2>
+      <p>v-once 디렉티브를 활용한 최초 1회 렌더링(상태 변경 시 재렌더링 방지) 예제입니다.</p>
+      <VueOnce />
     </section>
   </div>
 </template>
