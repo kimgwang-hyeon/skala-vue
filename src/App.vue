@@ -12,6 +12,7 @@ import VueIf from './components/practices/basic/VueIf.vue'
 import VueShow from './components/practices/basic/VueShow.vue'
 import VueFor from './components/practices/basic/VueFor.vue'
 import VuePre from './components/practices/basic/VuePre.vue'
+import VueCloak from './components/practices/basic/VueCloak.vue'
 </script>
 
 <template>
@@ -107,6 +108,13 @@ import VuePre from './components/practices/basic/VuePre.vue'
       <h2>13. Vue Pre 컴파일 스킵</h2>
       <p>v-pre 디렉티브를 활용한 컴파일 스킵(원시 콧수염 태그 그대로 출력) 예제입니다.</p>
       <VuePre />
+    </section>
+
+    <!-- 섹션 14 -->
+    <section class="card">
+      <h2>14. Vue Cloak 마스킹 방지</h2>
+      <p>v-cloak 디렉티브를 활용한 초기 로딩 시 콧수염 태그 깜빡임(FOUC) 방지 예제입니다.</p>
+      <VueCloak />
     </section>
   </div>
 </template>
