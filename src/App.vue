@@ -20,6 +20,7 @@ import EventObject from './components/practices/basic/EventObject.vue'
 import EventModifier from './components/practices/basic/EventModifier.vue'
 import VueModelBasic from './components/practices/basic/VueModelBasic.vue'
 import VueModelEventForm from './components/practices/basic/VueModelEventForm.vue'
+import VueModelModifier from './components/practices/basic/VueModelModifier.vue'
 </script>
 
 <template>
@@ -171,6 +172,13 @@ import VueModelEventForm from './components/practices/basic/VueModelEventForm.vu
       <h2>21. Vue Model Form 양방향 바인딩 폼 요소</h2>
       <p>Textarea, Checkbox, Radio, Select 등 다양한 HTML 폼 요소와 v-model 매핑 예제입니다.</p>
       <VueModelEventForm />
+    </section>
+
+    <!-- 섹션 22 -->
+    <section class="card">
+      <h2>22. Vue Model Modifier 양방향 바인딩 수식어</h2>
+      <p>v-model 수식어(.lazy, .number, .trim 등) 활용 및 수식어 체이닝 예제입니다.</p>
+      <VueModelModifier />
     </section>
   </div>
 </template>
