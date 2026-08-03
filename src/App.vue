@@ -5,9 +5,13 @@ import ComputedBasic from './components/practices/composition/ComputedBasic.vue'
 import WatchersBasic from './components/practices/composition/WatchersBasic.vue'
 import WatchersMulti from './components/practices/composition/WatchersMulti.vue'
 import WatchersDeep from './components/practices/composition/WatchersDeep.vue'
+import WatchersReactive from './components/practices/composition/WatchersReactive.vue'
+import WatchersRefArray from './components/practices/composition/WatchersRefArray.vue'
+import WatchersReactiveArray from './components/practices/composition/WatchersReactiveArray.vue'
+import WatchersWatchEffect from './components/practices/composition/WatchersWatchEffect.vue'
 
 // 💡 새로운 실습 컴포넌트를 작성한 후 아래와 같이 import하여 등록할 수 있습니다.
-// import WatchEffectBasic from './components/practices/composition/WatchEffectBasic.vue'
+// import NewPractice from './components/practices/composition/NewPractice.vue'
 </script>
 
 <template>
@@ -56,10 +60,38 @@ import WatchersDeep from './components/practices/composition/WatchersDeep.vue'
       <WatchersDeep />
     </section>
 
+    <!-- 섹션 7 -->
+    <section class="card">
+      <h2>7. reactive 데이터 watch 감시 규칙 및 과거 값 추적</h2>
+      <p>reactive 객체의 자동 deep 감시 특성과 화살표 함수 () =&gt; state.prop를 활용한 정확한 이전 값(oldVal) 추적 예제입니다.</p>
+      <WatchersReactive />
+    </section>
+
+    <!-- 섹션 8 -->
+    <section class="card">
+      <h2>8. ref 배열의 특정 인덱스/요소 감시</h2>
+      <p>ref() 배열의 특정 인덱스 요소 감시 및 객체형 배열 요소 변경 시 { deep: true } 옵션 적용 예제입니다.</p>
+      <WatchersRefArray />
+    </section>
+
+    <!-- 섹션 9 -->
+    <section class="card">
+      <h2>9. reactive 배열 감시 및 스냅샷 () =&gt; [...arr] 활용</h2>
+      <p>reactive 배열 요소 추가/삭제 감시 시 이전 배열 보존을 위한 스냅샷 복사본 감시 예제입니다.</p>
+      <WatchersReactiveArray />
+    </section>
+
+    <!-- 섹션 10 -->
+    <section class="card">
+      <h2>10. 자동 감시자 watchEffect() 및 즉시 실행</h2>
+      <p>감시 대상을 지정하지 않고 콜백 내부 반응형 변수를 자동으로 추적하여 초기 실행 및 변경 처리 예제입니다.</p>
+      <WatchersWatchEffect />
+    </section>
+
     <!-- 💡 새로운 실습 항목 추가 시 아래 주석을 참고하여 섹션을 추가하세요. -->
     <!--
     <section class="card">
-      <h2>7. 실습 제목</h2>
+      <h2>11. 실습 제목</h2>
       <p>실습에 대한 주요 설명입니다.</p>
       <NewComponent />
     </section>

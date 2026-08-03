@@ -1,11 +1,14 @@
 <script setup>
 import { ref } from 'vue'
 
+// 0. 현재 상세 정보가 열려 있는 도시의 id
+const openCityId = ref(null)
+
 // 1. 카드에 출력할 날씨 데이터
 const weatherList = ref([
-  { id: 'city_01', name: '서울', temp: 28, status: '맑음' },
-  { id: 'city_02', name: '수원', temp: 24, status: '비' },
-  { id: 'city_03', name: '부산', temp: 26, status: '구름' },
+  { id: 'city_01', name: '서울', temp: 30, status: '맑음', humidity: 60 },
+  { id: 'city_02', name: '수원', temp: 24, status: '비', humidity: 80 },
+  { id: 'city_03', name: '부산', temp: 16, status: '구름', humidity: 70 },
 ])
 
 // 2. 검색창 입력값
@@ -19,26 +22,36 @@ const selectCity = (cityName) => {
   selectedCityInfo.value = `${cityName}이 선택되었습니다.`
 }
 
-// 5. 상세보기 버튼 함수
-const showDetail = (cityName, status) => {
-  window.alert(`${cityName}의 현재 날씨는 [${status}] 상태입니다.`)
+// 5. 검색어를 입력하고 Enter를 눌렀을 때 실행할 함수
+const submitSearch = () => {
+  selectedCityInfo.value = searchQuery.value
+    ? `${searchQuery.value} 검색을 실행했습니다.`
+    : '검색어를 입력해 주세요.'
+}
+
+// 6. 상세보기 영역을 열고 닫는 함수
+const toggleDetail = (cityId) => {
+  openCityId.value = openCityId.value === cityId ? null : cityId
 }
 </script>
 
 <template>
   <div class="dashboard-wrapper">
-    <!-- 6. 도시 검색 영역 -->
+    <!-- 6. 도시 검색 영역: 현재는 v-model 방식으로 입력값 연결 -->
     <section class="search-box">
       <h3>도시 검색</h3>
       <input
-        v-bind:value="searchQuery"
-        @input="(e) => (searchQuery = e.target.value)"
+        :value="searchQuery"
+        @input="searchQuery = $event.target.value"
+        @keyup.enter="submitSearch"
         placeholder="도시를 검색하세요"
       />
-      <p>검색 중인 도시: <strong>{{ searchQuery || '입력 대기 중' }}</strong></p>
+      <p>
+        검색 중인 도시: <strong>{{ searchQuery || '입력 대기 중' }}</strong>
+      </p>
     </section>
 
-    <!-- 7. 날씨 카드 목록 -->
+    <!-- 7. 날씨 카드 목록과 온도별 상태 표시 -->
     <section class="list-box">
       <h3>지역별 날씨 현황</h3>
       <div
@@ -50,13 +63,26 @@ const showDetail = (cityName, status) => {
         <h4>{{ item.name }}</h4>
         <p>기온 : {{ item.temp }}°C</p>
         <p>상태 : {{ item.status }}</p>
-        <span v-if="item.temp >= 25" class="badge hot">🔥 더움 (25도 이상)</span>
-        <span v-else class="badge cool">❄️ 선선함 (25도 미만)</span>
-        <button class="btn-detail" @click.stop="showDetail(item.name, item.status)">상세보기</button>
+        <span
+          class="badge"
+          :class="{
+            hot: item.temp >= 30,
+            warm: item.temp >= 20 && item.temp < 30,
+            cool: item.temp < 20,
+          }"
+        >
+          <span v-if="item.temp >= 30">🔥 무지 더움</span>
+          <span v-else-if="item.temp >= 20">☀️ 포근함</span>
+          <span v-else>❄️ 서늘함</span>
+        </span>
+        <button class="btn-detail" @click.stop="toggleDetail(item.id)">
+          {{ openCityId === item.id ? '닫기' : '상세보기' }}
+        </button>
+        <div v-show="openCityId === item.id" class="detail-box">습도: {{ item.humidity }}%</div>
       </div>
     </section>
 
-    <!-- 8. 선택 상태바 -->
+    <!-- 8. 선택 또는 검색 상태바 -->
     <div class="status-bar">
       {{ selectedCityInfo }}
     </div>

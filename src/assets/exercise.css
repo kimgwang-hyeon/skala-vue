@@ -96,6 +96,18 @@
   background: #dbeafe;
 }
 
+.warm {
+  color: #a16207;
+  background: #fef3c7;
+}
+
+.detail-box {
+  margin-top: 12px;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
 .btn-detail {
   position: absolute;
   top: 16px;
