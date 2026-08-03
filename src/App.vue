@@ -1,9 +1,10 @@
 <script setup>
 import ReactiveRef from './components/practices/composition/ReactiveRef.vue'
 import ReactiveReactive from './components/practices/composition/ReactiveReactive.vue'
+import ComputedBasic from './components/practices/composition/ComputedBasic.vue'
 
 // 💡 새로운 실습 컴포넌트를 작성한 후 아래와 같이 import하여 등록할 수 있습니다.
-// import VueComputed from './components/practices/composition/VueComputed.vue'
+// import WatchBasic from './components/practices/composition/WatchBasic.vue'
 </script>
 
 <template>
@@ -24,10 +25,17 @@ import ReactiveReactive from './components/practices/composition/ReactiveReactiv
       <ReactiveReactive />
     </section>
 
+    <!-- 섹션 3 -->
+    <section class="card">
+      <h2>3. 계산된 속성 computed() 캐싱 및 활용</h2>
+      <p>computed()의 의존성 기반 반응형 캐싱 동작과 일반 메서드와의 연산 효율성 비교 예제입니다.</p>
+      <ComputedBasic />
+    </section>
+
     <!-- 💡 새로운 실습 항목 추가 시 아래 주석을 참고하여 섹션을 추가하세요. -->
     <!--
     <section class="card">
-      <h2>3. 실습 제목</h2>
+      <h2>4. 실습 제목</h2>
       <p>실습에 대한 주요 설명입니다.</p>
       <NewComponent />
     </section>
