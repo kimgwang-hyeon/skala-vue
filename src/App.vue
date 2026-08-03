@@ -2,9 +2,10 @@
 import ReactiveRef from './components/practices/composition/ReactiveRef.vue'
 import ReactiveReactive from './components/practices/composition/ReactiveReactive.vue'
 import ComputedBasic from './components/practices/composition/ComputedBasic.vue'
+import WatchersBasic from './components/practices/composition/WatchersBasic.vue'
 
 // 💡 새로운 실습 컴포넌트를 작성한 후 아래와 같이 import하여 등록할 수 있습니다.
-// import WatchBasic from './components/practices/composition/WatchBasic.vue'
+// import WatchEffectBasic from './components/practices/composition/WatchEffectBasic.vue'
 </script>
 
 <template>
@@ -32,10 +33,17 @@ import ComputedBasic from './components/practices/composition/ComputedBasic.vue'
       <ComputedBasic />
     </section>
 
+    <!-- 섹션 4 -->
+    <section class="card">
+      <h2>4. 감시자 watch()의 원리와 실무 활용</h2>
+      <p>watch()를 활용한 특정 반응형 데이터 변경 감지 및 부수 효과(Side Effect, API 조회 등) 처리 예제입니다.</p>
+      <WatchersBasic />
+    </section>
+
     <!-- 💡 새로운 실습 항목 추가 시 아래 주석을 참고하여 섹션을 추가하세요. -->
     <!--
     <section class="card">
-      <h2>4. 실습 제목</h2>
+      <h2>5. 실습 제목</h2>
       <p>실습에 대한 주요 설명입니다.</p>
       <NewComponent />
     </section>
