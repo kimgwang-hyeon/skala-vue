@@ -1,94 +1,100 @@
 <script setup>
-import { ref, computed, watch, watchEffect } from 'vue'
+import { ref, computed } from 'vue'
 
-// 1. [1일차 데이터] 가상의 백엔드 데이터 배열
+// 0. [1일차 데이터] 현재 상세 정보가 열려 있는 도시의 id
+const openCityId = ref(null)
+
+// 1. [1일차 데이터] 카드에 출력할 날씨 데이터
 const weatherList = ref([
-  { id: 'city_01', name: '서울', temp: 28, status: '맑음' },
-  { id: 'city_02', name: '수원', temp: 24, status: '비' },
-  { id: 'city_03', name: '부산', temp: 26, status: '구름' },
+  { id: 'city_01', name: '서울', temp: 30, status: '맑음', humidity: 60 },
+  { id: 'city_02', name: '수원', temp: 24, status: '비', humidity: 80 },
+  { id: 'city_03', name: '부산', temp: 16, status: '구름', humidity: 70 },
 ])
 
-// 2. [1일차 데이터] 검색어 및 알림창 제어용 데이터
+// 2. [1일차 데이터] 검색창 입력값
 const searchQuery = ref('')
-const selectedCityInfo = ref('카드를 클릭하거나 검색해 보세요.')
 
-// 3. [2일차 추가] computed를 활용한 실시간 검색 필터링 연산기 (★핵심)
+// 2-1. [2일차 데이터] 검색어를 입력하면 날씨 카드 목록을 필터링하는 computed
 const filteredWeatherList = computed(() => {
-  // 사용자가 입력한 검색어의 앞뒤 공백을 제거합니다.
   const query = searchQuery.value.trim()
 
-  // 검색어가 비어있다면 원본 weatherList를 그대로 보여줍니다.
   if (!query) {
     return weatherList.value
   }
 
-  // 검색어가 포함된 도시만 칼같이 필터링하여 실시간으로 뱉어냅니다.
   return weatherList.value.filter((item) => item.name.includes(query))
 })
 
-// 4. [2일차 추가] watch를 활용한 선택 도시 추적 센서
-// selectedCityInfo의 문구 변화를 감시하여 후속 로그를 처리합니다.
-watch(selectedCityInfo, (newInfo) => {
-  console.log(`👁️‍🗨️ [watch 감지] 상태 바 문구가 업데이트되었습니다 -> "${newInfo}"`)
-})
+// 3. [1일차 데이터] 카드 선택 시 상태바에 보여 줄 문구
+const selectedCityInfo = ref('카드를 선택해 보세요.')
 
-// 5. [2일차 추가] watchEffect를 활용한 자동 의존성 API 로그 시뮬레이션
-// 타이핑할 때마다 변하는 searchQuery를 AI CCTV처럼 자동 추적합니다.
-watchEffect(() => {
-  console.log(
-    `🤖 [watchEffect 자동 호출] 현재 검색어 '${searchQuery.value}'에 매칭되는 API 데이터를 필터링합니다.`,
-  )
-})
+// 4. [1일차 데이터] 카드를 클릭했을 때 상태바 문구를 바꾸는 함수
+const selectCity = (cityName) => {
+  selectedCityInfo.value = `${cityName}이 선택되었습니다.`
+}
 
-// 알림 대행 함수
-const showDetail = (cityName, status) => {
-  window.alert(`${cityName}의 현재 날씨는 [${status}] 상태입니다.`)
+// 5. [1일차 데이터] 검색어를 입력하고 Enter를 눌렀을 때 실행할 함수
+const submitSearch = () => {
+  selectedCityInfo.value = searchQuery.value
+    ? `${searchQuery.value} 검색을 실행했습니다.`
+    : '검색어를 입력해 주세요.'
+}
+
+// 6. [1일차 데이터] 상세보기 영역을 열고 닫는 함수
+const toggleDetail = (cityId) => {
+  openCityId.value = openCityId.value === cityId ? null : cityId
 }
 </script>
 
 <template>
   <div class="dashboard-wrapper">
+    <!-- 6. 도시 검색 영역: 현재는 v-model 방식으로 입력값 연결 -->
     <section class="search-box">
-      <h3>🔍 도시 검색</h3>
+      <h3>도시 검색</h3>
       <input
-        type="text"
         :value="searchQuery"
-        @input="(e) => (searchQuery = e.target.value)"
-        placeholder="검색할 도시 이름 입력"
+        @input="searchQuery = $event.target.value"
+        @keyup.enter="submitSearch"
+        placeholder="도시를 검색하세요"
       />
       <p>
-        검색 중인 도시: <strong>{{ searchQuery }}</strong>
+        검색 중인 도시: <strong>{{ searchQuery || '입력 대기 중' }}</strong>
       </p>
     </section>
 
+    <!-- 7. 날씨 카드 목록과 온도별 상태 표시 -->
     <section class="list-box">
-      <h3>🏙️ 지역별 날씨 현황</h3>
-
+      <h3>지역별 날씨 현황</h3>
       <div
         v-for="item in filteredWeatherList"
         :key="item.id"
         class="weather-card"
-        @click="selectedCityInfo = `${item.name}이 선택되었습니다.`"
+        @click="selectCity(item.name)"
       >
-        <h4>{{ item.name }} ({{ item.status }})</h4>
-        <p>현재 기온: {{ item.temp }}°C</p>
-
-        <span v-if="item.temp >= 25" class="badge hot">🔥 더움 (25도 이상)</span>
-        <span v-else class="badge cool">❄️ 선선함 (25도 미만)</span>
-
-        <button class="btn-detail" @click.stop="showDetail(item.name, item.status)">
-          상세보기
+        <h4>{{ item.name }}</h4>
+        <p>기온 : {{ item.temp }}°C</p>
+        <p>상태 : {{ item.status }}</p>
+        <span
+          class="badge"
+          :class="{
+            hot: item.temp >= 30,
+            warm: item.temp >= 20 && item.temp < 30,
+            cool: item.temp < 20,
+          }"
+        >
+          <span v-if="item.temp >= 30">🔥 무지 더움</span>
+          <span v-else-if="item.temp >= 20">☀️ 포근함</span>
+          <span v-else>❄️ 서늘함</span>
+        </span>
+        <button class="btn-detail" @click.stop="toggleDetail(item.id)">
+          {{ openCityId === item.id ? '닫기' : '상세보기' }}
         </button>
+        <div v-show="openCityId === item.id" class="detail-box">습도: {{ item.humidity }}%</div>
       </div>
-
-      <p
-        v-if="filteredWeatherList.length === 0"
-        style="text-align: center; color: #e74c3c; padding: 10px 0"
-      >
-        😭 검색 결과와 일치하는 도시가 없습니다.
-      </p>
+      <p v-if="filteredWeatherList.length === 0">검색 결과가 없습니다.</p>
     </section>
 
+    <!-- 8. 선택 또는 검색 상태바 -->
     <div class="status-bar">
       {{ selectedCityInfo }}
     </div>
