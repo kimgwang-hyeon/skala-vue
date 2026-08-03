@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, watchEffect } from 'vue'
 
 // 0. [1일차 데이터] 현재 상세 정보가 열려 있는 도시의 id
 const openCityId = ref(null)
@@ -25,10 +25,16 @@ const filteredWeatherList = computed(() => {
   return weatherList.value.filter((item) => item.name.includes(query))
 })
 
+// 2-2. [2일차 데이터] watchEffect를 사용하여 검색어가 바뀔 때마다 콘솔에 출력
+watchEffect(() => {
+  console.log(`👁️‍🗨️ [watchEffect 자동 호출]
+  현재 검색어 "${searchQuery.value}"에 매칭되는 API 데이터를 필터링 합니다.`)
+})
+
 // 3. [1일차 데이터] 카드 선택 시 상태바에 보여 줄 문구
 const selectedCityInfo = ref('카드를 선택해 보세요.')
 
-// 3-1. [2일차 데이터] 이전 문구와 새 문구를 콘솔에 출력하는 watch
+// 3-1. [2일차 데이터] 상태바 문구가 변경될 때 새 문구를 콘솔에 출력하는 watch
 watch(selectedCityInfo, (newInfo) => {
   console.log(`👁️‍🗨️ [watch 감지] 상태 바 문구가 업데이트되었습니다 -> "${newInfo}"`)
 })
