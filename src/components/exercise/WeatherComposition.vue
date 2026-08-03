@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 // 0. [1일차 데이터] 현재 상세 정보가 열려 있는 도시의 id
 const openCityId = ref(null)
@@ -27,6 +27,11 @@ const filteredWeatherList = computed(() => {
 
 // 3. [1일차 데이터] 카드 선택 시 상태바에 보여 줄 문구
 const selectedCityInfo = ref('카드를 선택해 보세요.')
+
+// 3-1. [2일차 데이터] 이전 문구와 새 문구를 콘솔에 출력하는 watch
+watch(selectedCityInfo, (newInfo) => {
+  console.log(`👁️‍🗨️ [watch 감지] 상태 바 문구가 업데이트되었습니다 -> "${newInfo}"`)
+})
 
 // 4. [1일차 데이터] 카드를 클릭했을 때 상태바 문구를 바꾸는 함수
 const selectCity = (cityName) => {
