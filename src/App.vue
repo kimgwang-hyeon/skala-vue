@@ -1,8 +1,9 @@
 <script setup>
 import ReactiveRef from './components/practices/composition/ReactiveRef.vue'
+import ReactiveReactive from './components/practices/composition/ReactiveReactive.vue'
 
 // 💡 새로운 실습 컴포넌트를 작성한 후 아래와 같이 import하여 등록할 수 있습니다.
-// import SampleComposition from './components/practices/composition/SampleComposition.vue'
+// import VueComputed from './components/practices/composition/VueComputed.vue'
 </script>
 
 <template>
@@ -16,12 +17,19 @@ import ReactiveRef from './components/practices/composition/ReactiveRef.vue'
       <ReactiveRef />
     </section>
 
+    <!-- 섹션 2 -->
+    <section class="card">
+      <h2>2. 반응형 상태 reactive() 특징 및 활용</h2>
+      <p>reactive()를 활용한 객체 및 배열 상태 관리와 특징 예제입니다.</p>
+      <ReactiveReactive />
+    </section>
+
     <!-- 💡 새로운 실습 항목 추가 시 아래 주석을 참고하여 섹션을 추가하세요. -->
     <!--
     <section class="card">
-      <h2>2. 실습 제목</h2>
+      <h2>3. 실습 제목</h2>
       <p>실습에 대한 주요 설명입니다.</p>
-      <SampleComposition />
+      <NewComponent />
     </section>
     -->
   </div>
