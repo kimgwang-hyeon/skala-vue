@@ -1,11 +1,11 @@
 <script setup>
-import WeatherComposition from './components/exercise/WeatherComposition.vue'
+import WeatherParent from './components/exercise/WeatherParent.vue'
 </script>
 
 <template>
   <div class="app-container">
-    <h1>과제 2: 날씨 (컴포지션)</h1>
-    <WeatherComposition />
+    <h1>과제 1: 날씨 (Mockup)</h1>
+    <WeatherParent />
   </div>
 </template>
 

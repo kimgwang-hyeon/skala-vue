@@ -1,5 +1,8 @@
 <script setup>
 import { ref, computed, watch, watchEffect } from 'vue'
+import BaseDashboardCard from './BaseDashboardCard.vue'
+import SearchBar from './SearchBar.vue'
+import WeatherCard from './WeatherCard.vue'
 
 // 0. [1일차 데이터] 현재 상세 정보가 열려 있는 도시의 id
 const openCityId = ref(null)
@@ -187,6 +190,11 @@ const selectCity = (cityName) => {
   selectedCityInfo.value = `${cityName}이 선택되었습니다.`
 }
 
+// SearchBar가 보낸 검색어 변경 Emit을 처리하는 부모 함수
+const handleUpdateQuery = (newQuery) => {
+  searchQuery.value = newQuery
+}
+
 // 5. [1일차 데이터] 검색어를 입력하고 Enter를 눌렀을 때 실행할 함수
 const submitSearch = () => {
   selectedCityInfo.value = searchQuery.value
@@ -194,106 +202,55 @@ const submitSearch = () => {
     : '검색어를 입력해 주세요.'
 }
 
+// SearchBar가 Enter 입력으로 보낸 검색 실행 Emit을 처리하는 부모 함수
+const handleSubmitSearch = () => {
+  submitSearch()
+}
+
 // 6. [1일차 데이터] 상세보기 영역을 열고 닫는 함수
 const toggleDetail = (cityId) => {
   openCityId.value = openCityId.value === cityId ? null : cityId
+}
+
+// WeatherCard가 보낸 카드 선택 Emit을 처리하는 부모 함수
+const handleSelectCard = (cityName) => {
+  selectCity(cityName)
+}
+
+// WeatherCard가 보낸 상세보기 Emit을 처리하는 부모 함수
+const handleClickDetail = (cityId) => {
+  toggleDetail(cityId)
 }
 </script>
 
 <template>
   <div class="dashboard-wrapper">
-    <!-- 6. 도시 검색 영역: 현재는 v-model 방식으로 입력값 연결 -->
-    <section class="search-box">
-      <h3>도시 검색</h3>
-      <input
-        :value="searchQuery"
-        @input="searchQuery = $event.target.value"
-        @keyup.enter="submitSearch"
-        placeholder="도시를 검색하세요"
+    <!-- 6. 도시 검색 영역: Props로 검색어 전달, Emits로 변경값 수신 -->
+    <BaseDashboardCard title="도시 검색">
+      <!-- 부모 -> SearchBar: 검색어 Props 전달 -->
+      <!-- SearchBar -> 부모: update-query와 submit-search Emit 수신 -->
+      <SearchBar
+        :search-query="searchQuery"
+        @update-query="handleUpdateQuery"
+        @submit-search="handleSubmitSearch"
       />
-      <p>
-        검색 중인 도시: <strong>{{ searchQuery || '입력 대기 중' }}</strong>
-      </p>
-    </section>
+    </BaseDashboardCard>
 
-    <!-- 7. 날씨 카드 목록과 온도별 상태 표시 -->
-    <section class="list-box">
-      <h3>지역별 날씨 현황</h3>
-      <div
+    <!-- 7. 날씨 카드 목록: 부모가 v-for를 처리하고 각 도시 데이터를 Props로 전달 -->
+    <BaseDashboardCard title="지역별 날씨 현황">
+      <!-- key: 각 카드의 고유 식별자 -->
+      <!-- weather, isOpen: 부모 -> WeatherCard Props 전달 -->
+      <!-- select-card, click-detail: WeatherCard -> 부모 Emit 수신 -->
+      <WeatherCard
         v-for="item in filteredWeatherList"
         :key="item.id"
-        class="weather-card"
-        @click="selectCity(item.name)"
-      >
-        <h4>{{ item.name }}</h4>
-        <p>기온 : {{ item.main.temp }}°C</p>
-        <p>상태 : {{ item.weather[0].description }}</p>
-        <span
-          class="badge"
-          :class="{
-            hot: item.main.temp >= 30,
-            warm: item.main.temp >= 20 && item.main.temp < 30,
-            cool: item.main.temp < 20,
-          }"
-        >
-          <span v-if="item.main.temp >= 30">🔥 무지 더움</span>
-          <span v-else-if="item.main.temp >= 20">☀️ 포근함</span>
-          <span v-else>❄️ 서늘함</span>
-        </span>
-        <button class="btn-detail" @click.stop="toggleDetail(item.id)">
-          {{ openCityId === item.id ? '닫기' : '상세보기' }}
-        </button>
-        <div v-show="openCityId === item.id" class="detail-box">
-          <div class="detail-header">
-            <img
-              class="weather-icon"
-              :src="`https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`"
-              :alt="item.weather[0].description"
-            />
-            <div>
-              <p class="detail-title">상세 날씨</p>
-              <p class="detail-description">{{ item.weather[0].description }}</p>
-            </div>
-          </div>
-
-          <div class="detail-grid">
-            <p>
-              <span>체감온도</span><strong>{{ item.main.feels_like }}°C</strong>
-            </p>
-            <p>
-              <span>최저/최고</span
-              ><strong>{{ item.main.temp_min }}°C / {{ item.main.temp_max }}°C</strong>
-            </p>
-            <p>
-              <span>습도</span><strong>{{ item.main.humidity }}%</strong>
-            </p>
-            <p>
-              <span>기압</span><strong>{{ item.main.pressure }}hPa</strong>
-            </p>
-            <p>
-              <span>풍속</span><strong>{{ item.wind.speed }}m/s</strong>
-            </p>
-            <p>
-              <span>풍향</span><strong>{{ item.wind.deg }}°</strong>
-            </p>
-            <p>
-              <span>구름량</span><strong>{{ item.clouds.all }}%</strong>
-            </p>
-            <p>
-              <span>가시거리</span><strong>{{ item.visibility / 1000 }}km</strong>
-            </p>
-          </div>
-
-          <div v-if="item.rain || item.snow" class="detail-extra">
-            <p v-if="item.rain">🌧️ 최근 1시간 강수량: {{ item.rain['1h'] }}mm</p>
-            <p v-if="item.snow">❄️ 최근 1시간 적설량: {{ item.snow['1h'] }}mm</p>
-          </div>
-
-          <p class="detail-coordinates">위치 좌표: {{ item.coord.lat }}, {{ item.coord.lon }}</p>
-        </div>
-      </div>
+        :weather="item"
+        :is-open="openCityId === item.id"
+        @select-card="handleSelectCard"
+        @click-detail="handleClickDetail"
+      />
       <p v-if="filteredWeatherList.length === 0">검색 결과가 없습니다.</p>
-    </section>
+    </BaseDashboardCard>
 
     <!-- 8. 선택 또는 검색 상태바 -->
     <div class="status-bar">

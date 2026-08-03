@@ -103,9 +103,88 @@
 
 .detail-box {
   margin-top: 12px;
-  padding: 10px;
+  padding: 16px;
   background: #f8fafc;
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.detail-header p,
+.detail-grid p,
+.detail-extra p,
+.detail-coordinates {
+  margin: 0;
+}
+
+.detail-title {
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.detail-description {
+  margin-top: 4px !important;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.detail-grid p {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+}
+
+.detail-grid span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.detail-grid strong {
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.detail-extra {
+  margin-top: 12px;
+  padding: 9px 10px;
+  color: #475569;
+  font-size: 13px;
+  background: #ffffff;
+  border-left: 3px solid #60a5fa;
+}
+
+.detail-extra p + p {
+  margin-top: 4px;
+}
+
+.detail-coordinates {
+  margin-top: 10px !important;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.weather-icon {
+  width: 64px;
+  height: 64px;
 }
 
 .btn-detail {
