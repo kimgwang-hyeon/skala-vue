@@ -4,6 +4,7 @@ import ReactiveReactive from './components/practices/composition/ReactiveReactiv
 import ComputedBasic from './components/practices/composition/ComputedBasic.vue'
 import WatchersBasic from './components/practices/composition/WatchersBasic.vue'
 import WatchersMulti from './components/practices/composition/WatchersMulti.vue'
+import WatchersDeep from './components/practices/composition/WatchersDeep.vue'
 
 // 💡 새로운 실습 컴포넌트를 작성한 후 아래와 같이 import하여 등록할 수 있습니다.
 // import WatchEffectBasic from './components/practices/composition/WatchEffectBasic.vue'
@@ -48,10 +49,17 @@ import WatchersMulti from './components/practices/composition/WatchersMulti.vue'
       <WatchersMulti />
     </section>
 
+    <!-- 섹션 6 -->
+    <section class="card">
+      <h2>6. ref 객체 깊은 감시 (deep: true) 및 특정 속성 타겟 감시</h2>
+      <p>ref() 객체 내부 속성 변경 감지를 위한 { deep: true } 옵션과 화살표 함수 () =&gt; obj.prop 타겟 감시 예제입니다.</p>
+      <WatchersDeep />
+    </section>
+
     <!-- 💡 새로운 실습 항목 추가 시 아래 주석을 참고하여 섹션을 추가하세요. -->
     <!--
     <section class="card">
-      <h2>6. 실습 제목</h2>
+      <h2>7. 실습 제목</h2>
       <p>실습에 대한 주요 설명입니다.</p>
       <NewComponent />
     </section>
