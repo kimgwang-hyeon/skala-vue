@@ -3,6 +3,7 @@ import ReactiveRef from './components/practices/composition/ReactiveRef.vue'
 import ReactiveReactive from './components/practices/composition/ReactiveReactive.vue'
 import ComputedBasic from './components/practices/composition/ComputedBasic.vue'
 import WatchersBasic from './components/practices/composition/WatchersBasic.vue'
+import WatchersMulti from './components/practices/composition/WatchersMulti.vue'
 
 // 💡 새로운 실습 컴포넌트를 작성한 후 아래와 같이 import하여 등록할 수 있습니다.
 // import WatchEffectBasic from './components/practices/composition/WatchEffectBasic.vue'
@@ -40,10 +41,17 @@ import WatchersBasic from './components/practices/composition/WatchersBasic.vue'
       <WatchersBasic />
     </section>
 
+    <!-- 섹션 5 -->
+    <section class="card">
+      <h2>5. 다중 변수 동시 감시 watch([source1, source2])</h2>
+      <p>여러 반응형 데이터를 배열로 묶어 동시에 감시하고 구조 분해 형태로 변화를 처리하는 예제입니다.</p>
+      <WatchersMulti />
+    </section>
+
     <!-- 💡 새로운 실습 항목 추가 시 아래 주석을 참고하여 섹션을 추가하세요. -->
     <!--
     <section class="card">
-      <h2>5. 실습 제목</h2>
+      <h2>6. 실습 제목</h2>
       <p>실습에 대한 주요 설명입니다.</p>
       <NewComponent />
     </section>
