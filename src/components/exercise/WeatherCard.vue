@@ -1,4 +1,8 @@
 <script setup>
+import { computed } from 'vue'
+
+import { useConfigStore } from '@/stores/configStore.js'
+
 // [Props] 부모가 전달한 도시 날씨 데이터와 즐겨찾기 상태를 받음
 const props = defineProps({
   weather: {
@@ -13,6 +17,13 @@ const props = defineProps({
 
 // [Emits] 카드 선택, 상세보기, 즐겨찾기 버튼 클릭을 부모에게 알림
 const emit = defineEmits(['select-card', 'click-detail', 'toggle-favorite'])
+
+const configStore = useConfigStore()
+
+// API의 섭씨 기온을 Pinia에서 선택한 단위로 변환
+const displayTemperature = computed(() => {
+  return configStore.convertTemperature(props.weather.main.temp)
+})
 
 // [Emits] 카드 전체 클릭 시 선택한 도시 이름을 부모에게 전달
 const handleCardClick = () => {
@@ -34,7 +45,7 @@ const handleFavoriteClick = () => {
   <article class="weather-card" @click="handleCardClick">
     <!-- weather Props에서 도시명과 날씨 정보를 꺼내서 출력 -->
     <h4>{{ props.weather.name }}</h4>
-    <p>기온 : {{ props.weather.main.temp }}°C</p>
+    <p>기온 : {{ displayTemperature }}{{ configStore.unitSymbol }}</p>
     <p>상태 : {{ props.weather.weather[0].description }}</p>
     <span
       class="badge"

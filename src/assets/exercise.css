@@ -44,12 +44,50 @@ a {
   padding: 40px 0 56px;
 }
 
-.app-container > h1 {
-  margin: 0 0 22px;
+.app-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.app-container > h1,
+.app-title-row h1 {
+  margin: 0;
   color: #0f2742;
   font-size: clamp(24px, 4vw, 32px);
   letter-spacing: -0.04em;
   text-align: center;
+}
+
+.unit-toggler {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.unit-label {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.unit-toggler-button {
+  padding: 8px 11px;
+  color: #ffffff;
+  background: #526b86;
+  border: 1px solid #526b86;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.unit-toggler-button:hover {
+  color: #ffffff;
+  background: #334e68;
 }
 
 .app-container > main {
@@ -59,14 +97,21 @@ a {
 /* 상단 라우터 내비게이션 */
 .nav-bar {
   display: flex;
-  justify-content: center;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
   padding: 8px;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid #dbeafe;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(30, 64, 175, 0.08);
   backdrop-filter: blur(10px);
+}
+
+.nav-links {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: 8px;
 }
 
 .nav-bar a {
@@ -361,6 +406,29 @@ a {
   border-radius: 12px;
 }
 
+.detail-state {
+  padding: 28px 16px;
+  color: #64748b;
+  text-align: center;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+}
+
+.detail-state.error {
+  color: #b91c1c;
+  background: #fff7f7;
+  border-color: #fecaca;
+}
+
+.detail-state p {
+  margin: 0;
+}
+
+.detail-state .btn-back {
+  margin-top: 14px;
+}
+
 .dashboard-card > .detail-box {
   margin-top: 0;
   padding: 0;
@@ -553,6 +621,7 @@ a {
 
 /* 키보드로 이동할 때 포커스 표시 */
 .nav-bar a:focus-visible,
+.unit-toggler-button:focus-visible,
 .btn-detail:focus-visible,
 .btn-favorite:focus-visible,
 .btn-back:focus-visible,
@@ -570,10 +639,19 @@ a {
 
   .nav-bar {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-links {
+    flex-direction: column;
   }
 
   .nav-bar a {
     max-width: none;
+  }
+
+  .unit-toggler {
+    justify-content: center;
   }
 
   .dashboard-card,

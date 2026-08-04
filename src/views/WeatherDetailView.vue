@@ -4,9 +4,14 @@ import { useRoute, useRouter } from 'vue-router'
 
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
 import { weatherMockList } from '@/data/weatherMock.js'
+import { useConfigStore } from '@/stores/configStore.js'
+import { fetchCurrentWeather } from '@/api/weatherApi.js'
 
 // 현재 URL 정보를 읽는 객체
 const route = useRoute()
+
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 // 다른 주소로 이동할 때 사용하는 객체
 const router = useRouter()
@@ -14,43 +19,67 @@ const router = useRouter()
 // URL의 cityId에 해당하는 도시를 담을 변수
 const selectedCity = ref(null)
 
-// URL의 cityId를 기준으로 Mock Data에서 도시를 찾는 함수
-const findSelectedCity = (cityId) => {
-  selectedCity.value = weatherMockList.find((item) => {
+const configStore = useConfigStore()
+
+// URL의 cityId에 해당하는 Mock Data의 도시를 찾는 함수
+const findCity = (cityId) => {
+  return weatherMockList.find((item) => {
     return String(item.id) === String(cityId)
   })
+}
+
+// 도시 좌표를 기준으로 OpenWeather 현재 날씨를 요청
+const loadWeather = async (cityId) => {
+  const city = findCity(cityId)
 
   // URL의 cityId에 해당하는 도시가 없으면 NotFound로 이동
-  if (!selectedCity.value) {
+  if (!city) {
     router.replace({
       name: 'not-found',
       params: { pathMatch: ['not-found'] },
     })
+
+    return
+  }
+
+  isLoading.value = true
+  errorMessage.value = ''
+  selectedCity.value = null
+
+  try {
+    const response = await fetchCurrentWeather(city.coord)
+    selectedCity.value = response.data
+  } catch (error) {
+    if (error.response?.status === 401) {
+      errorMessage.value = 'OpenWeather API 키가 유효하지 않거나 아직 활성화되지 않았습니다.'
+    } else {
+      errorMessage.value = '날씨 정보를 불러오지 못했습니다.'
+    }
+  } finally {
+    isLoading.value = false
   }
 }
 
-// 상세 페이지가 처음 화면에 나타나는 Mount 시점에 도시 선택
+// 상세 페이지가 처음 화면에 나타날 때 API 요청
 onMounted(() => {
-  findSelectedCity(route.params.cityId)
+  loadWeather(route.params.cityId)
 })
 
-// 같은 상세 컴포넌트에서 cityId만 바뀌면 onMounted가 다시 실행되지 않으므로 watch로 처리
+// 같은 상세 컴포넌트에서 cityId만 바뀌면 API를 다시 요청
 watch(
   () => route.params.cityId,
-  (newCityId) => {
-    if (newCityId) {
-      findSelectedCity(newCityId)
+  (newCityId, oldCityId) => {
+    if (newCityId && newCityId !== oldCityId) {
+      loadWeather(newCityId)
     }
   },
 )
 
 // 현재 도시가 Mock Data에서 몇 번째인지 계산
 const selectedCityIndex = computed(() => {
-  if (!selectedCity.value) {
-    return -1
-  }
-
-  return weatherMockList.findIndex((item) => item.id === selectedCity.value.id)
+  return weatherMockList.findIndex((item) => {
+    return String(item.id) === String(route.params.cityId)
+  })
 })
 
 // 이전 도시와 다음 도시를 computed로 계산
@@ -80,11 +109,45 @@ const handleGoHome = () => {
     query: { ...route.query },
   })
 }
+
+// API 응답의 섭씨 값을 Pinia에서 선택한 단위로 변환
+const displayTemperature = computed(() => {
+  return selectedCity.value ? configStore.convertTemperature(selectedCity.value.main.temp) : ''
+})
+
+const displayFeelsLike = computed(() => {
+  return selectedCity.value
+    ? configStore.convertTemperature(selectedCity.value.main.feels_like)
+    : ''
+})
+
+const displayTempMin = computed(() => {
+  return selectedCity.value
+    ? configStore.convertTemperature(selectedCity.value.main.temp_min)
+    : ''
+})
+
+const displayTempMax = computed(() => {
+  return selectedCity.value
+    ? configStore.convertTemperature(selectedCity.value.main.temp_max)
+    : ''
+})
+
+const retryWeather = () => {
+  loadWeather(route.params.cityId)
+}
 </script>
 
 <template>
   <BaseDashboardCard title="지역별 상세 기상 관측 정보">
-    <div v-if="selectedCity" class="detail-box">
+    <div v-if="isLoading" class="detail-state">날씨 정보를 불러오는 중입니다...</div>
+
+    <div v-else-if="errorMessage" class="detail-state error">
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="btn-back" @click="retryWeather">다시 시도</button>
+    </div>
+
+    <div v-else-if="selectedCity" class="detail-box">
       <div class="detail-header">
         <img
           class="weather-icon"
@@ -104,17 +167,20 @@ const handleGoHome = () => {
       <div class="detail-grid">
         <p>
           <span>현재 기온</span>
-          <strong>{{ selectedCity.main.temp }}°C</strong>
+          <strong>{{ displayTemperature }}{{ configStore.unitSymbol }}</strong>
         </p>
 
         <p>
           <span>체감온도</span>
-          <strong>{{ selectedCity.main.feels_like }}°C</strong>
+          <strong>{{ displayFeelsLike }}{{ configStore.unitSymbol }}</strong>
         </p>
 
         <p>
           <span>최저/최고</span>
-          <strong> {{ selectedCity.main.temp_min }}°C / {{ selectedCity.main.temp_max }}°C </strong>
+          <strong>
+            {{ displayTempMin }}{{ configStore.unitSymbol }} /
+            {{ displayTempMax }}{{ configStore.unitSymbol }}
+          </strong>
         </p>
 
         <p>
