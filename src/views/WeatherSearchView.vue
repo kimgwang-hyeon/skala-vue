@@ -3,15 +3,12 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
+import LocationSuggestionList from '@/components/exercise/LocationSuggestionList.vue'
 import SearchBar from '@/components/exercise/SearchBar.vue'
 import WeatherCard from '@/components/exercise/WeatherCard.vue'
-import { searchKoreanRegions } from '@/api/locationApi.js'
 import { fetchCurrentWeather, reverseGeocodeLocation } from '@/api/weatherApi.js'
-import {
-  createLocationFromGeocode,
-  createLocationFromKakao,
-  useWeatherStore,
-} from '@/stores/weatherStore.js'
+import { isValidLocationQuery, useLocationSearch } from '@/composables/useLocationSearch.js'
+import { createLocationFromGeocode, useWeatherStore } from '@/stores/weatherStore.js'
 import {
   getApiRecentSearches,
   saveApiRecentSearches,
@@ -26,53 +23,30 @@ const getQueryText = (queryValue) => {
 }
 
 const searchQuery = ref(getQueryText(route.query.q))
-const rawLocationResults = ref([])
 const searchWeatherList = ref([])
 const selectedLocation = ref(null)
-const isSuggesting = ref(false)
 const isSearching = ref(false)
 const isLocating = ref(false)
-const hasRequestedSuggestions = ref(false)
 const hasSearched = ref(false)
-const suggestionError = ref('')
 const searchError = ref('')
 const searchStatus = ref('지역명을 입력하고 카카오 검색 후보에서 한 곳을 선택해 보세요.')
 const recentApiSearches = ref(getApiRecentSearches())
 
-const isValidApiQuery = (value) => {
-  const query = value.trim()
-  const hasStandaloneJamo = /[ㄱ-ㅎㅏ-ㅣ]/.test(query)
+// 카카오 후보 조회는 도시 비교 화면과 공유하는 합성 함수에 위임
+const locationSearch = useLocationSearch()
 
-  return query.length >= 2 && !hasStandaloneJamo
-}
-
-// 카카오 지역 검색은 '서울'처럼 완성된 한글 두 글자 이상일 때만 허용
 const isApiQueryValid = computed(() => {
-  return isValidApiQuery(searchQuery.value)
-})
-
-// 카카오 응답 중 행정구역만 남기고 좌표가 같은 후보는 한 번만 표시
-const locationSuggestions = computed(() => {
-  const locationMap = new Map()
-
-  rawLocationResults.value
-    .filter((item) => item.address_type === 'REGION')
-    .map(createLocationFromKakao)
-    .forEach((location) => {
-      locationMap.set(location.key, location)
-    })
-
-  return [...locationMap.values()]
+  return isValidLocationQuery(searchQuery.value)
 })
 
 const showLocationSuggestions = computed(() => {
   return (
-    isSuggesting.value ||
+    locationSearch.isSuggesting.value ||
     (!selectedLocation.value &&
       isApiQueryValid.value &&
-      (locationSuggestions.value.length > 0 ||
-        hasRequestedSuggestions.value ||
-        Boolean(suggestionError.value)))
+      (locationSearch.suggestions.value.length > 0 ||
+        locationSearch.hasRequested.value ||
+        Boolean(locationSearch.errorMessage.value)))
   )
 })
 
@@ -101,11 +75,8 @@ const createWeatherItem = (location, apiWeather) => {
   }
 }
 
-let locationRequestId = 0
-
 // 지역 선택과 현재 위치 검색이 같은 순번을 공유해야 서로의 낡은 응답을 무효화할 수 있음
 let weatherRequestId = 0
-let suggestionTimerId
 
 // 검색어를 URL query와 동기화하여 새로고침·뒤로가기에도 유지
 watch(searchQuery, (newQuery) => {
@@ -135,20 +106,18 @@ watch(
 
 // watch 실습: 입력을 잠시 멈춘 뒤에만 카카오 지역 후보를 자동 조회
 watch(searchQuery, (newQuery, _oldQuery, onCleanup) => {
-  clearTimeout(suggestionTimerId)
-
   const query = newQuery.trim()
 
-  if (!isValidApiQuery(query) || selectedLocation.value?.name === query) {
+  // 이미 고른 도시의 이름이 그대로 남아 있으면 다시 조회하지 않음
+  if (selectedLocation.value?.name === query) {
+    locationSearch.stopScheduledSearch()
     return
   }
 
-  suggestionTimerId = window.setTimeout(() => {
-    loadLocationSuggestions(query)
-  }, 400)
+  locationSearch.scheduleSearch(query)
 
   onCleanup(() => {
-    clearTimeout(suggestionTimerId)
+    locationSearch.stopScheduledSearch()
   })
 })
 
@@ -163,14 +132,10 @@ watch(
 
 const handleUpdateQuery = (newQuery) => {
   if (newQuery !== searchQuery.value) {
-    locationRequestId += 1
+    locationSearch.reset()
     selectedLocation.value = null
-    rawLocationResults.value = []
     searchWeatherList.value = []
-    isSuggesting.value = false
-    hasRequestedSuggestions.value = false
     hasSearched.value = false
-    suggestionError.value = ''
     searchError.value = ''
   }
 
@@ -184,83 +149,31 @@ const rememberApiSearch = (query) => {
   ].slice(0, 5)
 }
 
-const getSuggestionErrorMessage = (error) => {
-  if (error.response?.status === 401) {
-    return '카카오 REST API 키를 확인해 주세요.'
-  }
+// 검색 버튼·Enter로 조회할 때는 진행 상황을 상태 바에도 알림
+const searchLocationsWithStatus = async (query) => {
+  searchStatus.value = `${query}의 카카오 지역 후보를 찾고 있습니다.`
 
-  if (error.response?.status === 403) {
-    return '카카오맵 API 사용 설정이 켜져 있는지 확인해 주세요.'
-  }
+  const suggestions = await locationSearch.search(query)
 
-  return '지역 검색 중 오류가 발생했습니다.'
-}
-
-const loadLocationSuggestions = async (query, announce = false) => {
-  const normalizedQuery = query.trim()
-
-  if (!isValidApiQuery(normalizedQuery)) {
-    return []
-  }
-
-  const requestId = ++locationRequestId
-  isSuggesting.value = true
-  hasRequestedSuggestions.value = false
-  suggestionError.value = ''
-
-  if (announce) {
-    searchStatus.value = `${normalizedQuery}의 카카오 지역 후보를 찾고 있습니다.`
-  }
-
-  try {
-    const locationResponse = await searchKoreanRegions(normalizedQuery)
-
-    if (requestId !== locationRequestId) {
-      return []
-    }
-
-    rawLocationResults.value = locationResponse.data.documents ?? []
-    hasRequestedSuggestions.value = true
-
-    const suggestions = [...locationSuggestions.value]
-
-    if (announce) {
-      searchStatus.value =
-        suggestions.length > 0
-          ? `${suggestions.length}개의 지역 후보를 찾았습니다. 한 곳을 선택해 주세요.`
-          : `${normalizedQuery}에 해당하는 대한민국 행정구역을 찾지 못했습니다.`
-    }
-
+  if (locationSearch.errorMessage.value) {
+    searchStatus.value = '카카오 지역 검색을 완료하지 못했습니다.'
     return suggestions
-  } catch (error) {
-    if (requestId !== locationRequestId) {
-      return []
-    }
-
-    rawLocationResults.value = []
-    hasRequestedSuggestions.value = true
-    suggestionError.value = getSuggestionErrorMessage(error)
-
-    if (announce) {
-      searchStatus.value = '카카오 지역 검색을 완료하지 못했습니다.'
-    }
-
-    return []
-  } finally {
-    if (requestId === locationRequestId) {
-      isSuggesting.value = false
-    }
   }
+
+  searchStatus.value =
+    suggestions.length > 0
+      ? `${suggestions.length}개의 지역 후보를 찾았습니다. 한 곳을 선택해 주세요.`
+      : `${query}에 해당하는 대한민국 행정구역을 찾지 못했습니다.`
+
+  return suggestions
 }
 
 const handleSelectLocation = async (location) => {
-  clearTimeout(suggestionTimerId)
   const requestId = ++weatherRequestId
-  locationRequestId += 1
+
+  // 후보 목록을 비워 선택 직후 드롭다운이 닫히도록 함
+  locationSearch.reset()
   selectedLocation.value = location
-  rawLocationResults.value = []
-  hasRequestedSuggestions.value = false
-  suggestionError.value = ''
   searchQuery.value = location.name
   isSearching.value = true
   hasSearched.value = true
@@ -307,14 +220,14 @@ const handleSubmitSearch = async () => {
     return
   }
 
-  clearTimeout(suggestionTimerId)
+  locationSearch.stopScheduledSearch()
 
   if (selectedLocation.value?.name === query) {
     await handleSelectLocation(selectedLocation.value)
     return
   }
 
-  const suggestions = await loadLocationSuggestions(query, true)
+  const suggestions = await searchLocationsWithStatus(query)
 
   if (suggestions.length === 0) {
     hasSearched.value = true
@@ -362,11 +275,8 @@ const handleSearchCurrentLocation = async () => {
 
   isLocating.value = true
   const requestId = ++weatherRequestId
-  locationRequestId += 1
+  locationSearch.reset()
   selectedLocation.value = null
-  rawLocationResults.value = []
-  hasRequestedSuggestions.value = false
-  suggestionError.value = ''
   hasSearched.value = true
   searchError.value = ''
   searchWeatherList.value = []
@@ -493,7 +403,9 @@ onMounted(() => {
         status-label="현재 검색어"
         show-submit-button
         submit-label="지역 찾기"
-        :submit-disabled="isSearching || isSuggesting || isLocating || !isApiQueryValid"
+        :submit-disabled="
+          isSearching || locationSearch.isSuggesting.value || isLocating || !isApiQueryValid
+        "
         suggestions-id="kakao-location-suggestions"
         :suggestions-visible="showLocationSuggestions"
         compact
@@ -505,48 +417,14 @@ onMounted(() => {
         완성된 도시명을 두 글자 이상 입력해 주세요.
       </p>
 
-      <section
+      <LocationSuggestionList
         v-if="showLocationSuggestions"
-        id="kakao-location-suggestions"
-        class="location-suggestions"
-        aria-label="카카오 지역 검색 후보"
-        aria-live="polite"
-      >
-        <div class="location-suggestions-heading">
-          <strong>지역 후보</strong>
-          <span>Kakao Local</span>
-        </div>
-
-        <p v-if="isSuggesting" class="location-suggestion-state">
-          입력한 지역을 찾고 있습니다...
-        </p>
-
-        <p v-else-if="suggestionError" class="location-suggestion-state error">
-          {{ suggestionError }}
-        </p>
-
-        <ul v-else-if="locationSuggestions.length > 0" class="location-suggestion-list">
-          <li v-for="location in locationSuggestions" :key="location.key">
-            <button
-              type="button"
-              class="location-suggestion-button"
-              :aria-label="`${location.addressName} 선택`"
-              @click="handleSelectLocation(location)"
-            >
-              <span class="location-suggestion-marker" aria-hidden="true"></span>
-              <span>
-                <strong>{{ location.name }}</strong>
-                <small>{{ location.addressName }}</small>
-              </span>
-              <span class="location-suggestion-arrow" aria-hidden="true">→</span>
-            </button>
-          </li>
-        </ul>
-
-        <p v-else class="location-suggestion-state">
-          일치하는 대한민국 행정구역이 없습니다.
-        </p>
-      </section>
+        list-id="kakao-location-suggestions"
+        :suggestions="locationSearch.suggestions.value"
+        :is-loading="locationSearch.isSuggesting.value"
+        :error-message="locationSearch.errorMessage.value"
+        @select="handleSelectLocation"
+      />
 
       <div class="location-search-row">
         <div>

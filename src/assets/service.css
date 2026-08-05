@@ -1576,13 +1576,30 @@
 .compare-selectors {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: end;
+  align-items: start;
   gap: 14px;
   margin: 0;
   padding: 16px;
   background: var(--surface-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
+}
+
+/* 빠른 선택 select와 카카오 지역 검색을 한 슬롯으로 묶음 */
+.compare-slot {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.compare-slot .search-box {
+  padding: 0;
+  background: none;
+  border: 0;
+}
+
+.app-main .compare-selectors .btn-swap-cities {
+  align-self: center;
 }
 
 .compare-selectors label {

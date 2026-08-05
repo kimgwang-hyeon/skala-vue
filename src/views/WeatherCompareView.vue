@@ -1,9 +1,12 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
+import LocationSuggestionList from '@/components/exercise/LocationSuggestionList.vue'
+import SearchBar from '@/components/exercise/SearchBar.vue'
 import { fetchCurrentWeather } from '@/api/weatherApi.js'
+import { isValidLocationQuery, useLocationSearch } from '@/composables/useLocationSearch.js'
 import { useConfigStore } from '@/stores/configStore.js'
 import { useWeatherStore } from '@/stores/weatherStore.js'
 import { getWeatherDisplay } from '@/utils/weatherDisplay.js'
@@ -13,18 +16,30 @@ const router = useRouter()
 const weatherStore = useWeatherStore()
 const configStore = useConfigStore()
 
-const comparisonLocations = computed(() => weatherStore.knownCities)
+// 빠른 선택은 사용자가 실제로 관리하는 도시만 노출
+// (knownCities는 상세 URL 복원을 위한 내부 조회 테이블이라 목록으로 쓰지 않음)
+const quickPickLocations = computed(() => {
+  const locationMap = new Map()
+
+  ;[...weatherStore.dashboardCities, ...weatherStore.favoriteCities].forEach((location) => {
+    locationMap.set(location.key, location)
+  })
+
+  return [...locationMap.values()]
+})
 
 const getRouteKey = (value, fallbackIndex) => {
   const routeKey = typeof value === 'string' ? value : ''
-  return weatherStore.findLocation(routeKey)?.key ?? comparisonLocations.value[fallbackIndex]?.key ?? ''
+  return (
+    weatherStore.findLocation(routeKey)?.key ?? quickPickLocations.value[fallbackIndex]?.key ?? ''
+  )
 }
 
 const leftLocationKey = ref(getRouteKey(route.query.left, 0))
 const initialRightKey = getRouteKey(route.query.right, 1)
 const rightLocationKey = ref(
   initialRightKey === leftLocationKey.value
-    ? comparisonLocations.value.find((item) => item.key !== leftLocationKey.value)?.key ?? ''
+    ? quickPickLocations.value.find((item) => item.key !== leftLocationKey.value)?.key ?? ''
     : initialRightKey,
 )
 
@@ -36,6 +51,58 @@ let comparisonRequestId = 0
 
 const leftLocation = computed(() => weatherStore.findLocation(leftLocationKey.value))
 const rightLocation = computed(() => weatherStore.findLocation(rightLocationKey.value))
+
+// 검색으로 고른 도시는 빠른 선택 목록에 없으므로 select가 비어 보이지 않도록 함께 노출
+const withSelectedLocation = (locations, selected) => {
+  if (!selected || locations.some((location) => location.key === selected.key)) {
+    return locations
+  }
+
+  return [selected, ...locations]
+}
+
+// 좌우 슬롯이 각자 독립적으로 카카오 지역 검색을 수행
+const createComparisonSlot = (locationKey, selectedLocation) => {
+  const query = ref('')
+  const search = useLocationSearch()
+
+  const options = computed(() => {
+    return withSelectedLocation(quickPickLocations.value, selectedLocation.value)
+  })
+
+  const showSuggestions = computed(() => {
+    return (
+      search.isSuggesting.value ||
+      (isValidLocationQuery(query.value) &&
+        (search.suggestions.value.length > 0 ||
+          search.hasRequested.value ||
+          Boolean(search.errorMessage.value)))
+    )
+  })
+
+  const updateQuery = (newQuery) => {
+    query.value = newQuery
+    search.scheduleSearch(newQuery)
+  }
+
+  const submitSearch = () => {
+    search.search(query.value)
+  }
+
+  // 후보를 고르면 Pinia에 기억시켜 새로고침 후에도 URL로 복원됨
+  const selectLocation = (location) => {
+    weatherStore.rememberLocations([location])
+    locationKey.value = location.key
+    query.value = ''
+    search.reset()
+  }
+
+  return { query, search, options, showSuggestions, updateQuery, submitSearch, selectLocation }
+}
+
+// reactive로 감싸면 템플릿에서 중첩 ref를 .value 없이 읽을 수 있음
+const leftSlot = reactive(createComparisonSlot(leftLocationKey, leftLocation))
+const rightSlot = reactive(createComparisonSlot(rightLocationKey, rightLocation))
 
 const loadComparison = async () => {
   const requestId = ++comparisonRequestId
@@ -236,36 +303,76 @@ const handleOpenDetail = (locationKey) => {
     >
 
       <div class="compare-selectors">
-        <label>
-          <span>첫 번째 도시</span>
-          <select v-model="leftLocationKey">
-            <option
-              v-for="location in comparisonLocations"
-              :key="location.key"
-              :value="location.key"
-            >
-              {{ location.name }}{{ location.state ? ` · ${location.state}` : '' }}
-            </option>
-          </select>
-        </label>
+        <div class="compare-slot">
+          <label>
+            <span>첫 번째 도시</span>
+            <select v-model="leftLocationKey">
+              <option v-for="location in leftSlot.options" :key="location.key" :value="location.key">
+                {{ location.name }}{{ location.state ? ` · ${location.state}` : '' }}
+              </option>
+            </select>
+          </label>
+
+          <SearchBar
+            :search-query="leftSlot.query"
+            placeholder="다른 도시 검색 (예: 계룡)"
+            :show-status="false"
+            compact
+            suggestions-id="compare-left-suggestions"
+            :suggestions-visible="leftSlot.showSuggestions"
+            @update-query="leftSlot.updateQuery"
+            @submit-search="leftSlot.submitSearch"
+          />
+
+          <LocationSuggestionList
+            v-if="leftSlot.showSuggestions"
+            list-id="compare-left-suggestions"
+            :suggestions="leftSlot.search.suggestions"
+            :is-loading="leftSlot.search.isSuggesting"
+            :error-message="leftSlot.search.errorMessage"
+            @select="leftSlot.selectLocation"
+          />
+        </div>
 
         <button type="button" class="btn-swap-cities" @click="handleSwapCities">
           <span aria-hidden="true">⇄</span>
           위치 교체
         </button>
 
-        <label>
-          <span>두 번째 도시</span>
-          <select v-model="rightLocationKey">
-            <option
-              v-for="location in comparisonLocations"
-              :key="location.key"
-              :value="location.key"
-            >
-              {{ location.name }}{{ location.state ? ` · ${location.state}` : '' }}
-            </option>
-          </select>
-        </label>
+        <div class="compare-slot">
+          <label>
+            <span>두 번째 도시</span>
+            <select v-model="rightLocationKey">
+              <option
+                v-for="location in rightSlot.options"
+                :key="location.key"
+                :value="location.key"
+              >
+                {{ location.name }}{{ location.state ? ` · ${location.state}` : '' }}
+              </option>
+            </select>
+          </label>
+
+          <SearchBar
+            :search-query="rightSlot.query"
+            placeholder="다른 도시 검색 (예: 성남)"
+            :show-status="false"
+            compact
+            suggestions-id="compare-right-suggestions"
+            :suggestions-visible="rightSlot.showSuggestions"
+            @update-query="rightSlot.updateQuery"
+            @submit-search="rightSlot.submitSearch"
+          />
+
+          <LocationSuggestionList
+            v-if="rightSlot.showSuggestions"
+            list-id="compare-right-suggestions"
+            :suggestions="rightSlot.search.suggestions"
+            :is-loading="rightSlot.search.isSuggesting"
+            :error-message="rightSlot.search.errorMessage"
+            @select="rightSlot.selectLocation"
+          />
+        </div>
       </div>
 
       <p v-if="isLoading" class="detail-state">두 도시의 날씨를 비교하는 중입니다...</p>

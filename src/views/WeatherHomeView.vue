@@ -124,52 +124,55 @@ const showFavoritesOnly = ref(route.query.favorites === '1')
 // 최근 검색어는 새로고침 후에도 유지
 const recentSearches = ref(getRecentSearches())
 
-// 검색어가 바뀌면 현재 URL을 /?q=검색어 형태로 변경
-// replace를 사용하므로 글자마다 브라우저 방문 기록이 쌓이지 않음
-watch(searchQuery, (newQuery) => {
-  const query = newQuery.trim()
-
-  if (query === getQueryText(route.query.q)) {
-    return
+// 검색어·정렬·즐겨찾기 필터를 하나의 query 객체로 만듦
+// 세 값을 항상 함께 쓰므로 한쪽 변경이 다른 쪽을 덮어쓰지 않음
+const buildHomeQuery = () => {
+  return {
+    q: searchQuery.value.trim() || undefined,
+    sort: sortOption.value === 'default' ? undefined : sortOption.value,
+    favorites: showFavoritesOnly.value ? '1' : undefined,
   }
+}
 
-  router.replace({
-    name: 'home',
-    query: {
-      ...route.query,
-      q: query || undefined,
-    },
+const HOME_QUERY_KEYS = ['q', 'sort', 'favorites']
+
+const isSameHomeQuery = (left, right) => {
+  return HOME_QUERY_KEYS.every((key) => (left[key] ?? '') === (right[key] ?? ''))
+}
+
+let queryUpdateTimerId
+
+// watch 실습: 화면 상태가 바뀌면 URL을 갱신해 새로고침·뒤로가기에도 유지
+// 입력을 멈춘 뒤에만 replace를 호출하므로 글자마다 라우팅이 일어나지 않음
+// (목록 필터링은 computed가 즉시 처리하므로 화면 반응은 지연되지 않음)
+watch([searchQuery, sortOption, showFavoritesOnly], (_newValues, _oldValues, onCleanup) => {
+  clearTimeout(queryUpdateTimerId)
+
+  queryUpdateTimerId = window.setTimeout(() => {
+    const nextQuery = buildHomeQuery()
+
+    if (isSameHomeQuery(nextQuery, route.query)) {
+      return
+    }
+
+    router.replace({ name: 'home', query: nextQuery })
+  }, 300)
+
+  onCleanup(() => {
+    clearTimeout(queryUpdateTimerId)
   })
 })
 
-// 주소창 이동이나 뒤로가기로 q가 바뀌면 검색창도 다시 동기화
+// 주소창 입력이나 브라우저 뒤로가기로 query가 바뀌면 화면 상태를 되돌림
 watch(
-  () => route.query.q,
-  (newQuery) => {
+  () => [route.query.q, route.query.sort, route.query.favorites],
+  ([newQuery, newSort, newFavorites]) => {
     const query = getQueryText(newQuery)
 
     if (searchQuery.value !== query) {
       searchQuery.value = query
     }
-  },
-)
 
-// 정렬/필터 상태를 URL에 저장하여 새로고침과 뒤로가기 후에도 유지
-watch([sortOption, showFavoritesOnly], ([newSort, favoritesOnly]) => {
-  router.replace({
-    name: 'home',
-    query: {
-      ...route.query,
-      sort: newSort === 'default' ? undefined : newSort,
-      favorites: favoritesOnly ? '1' : undefined,
-    },
-  })
-})
-
-// 주소창이나 브라우저 뒤로가기로 query가 바뀐 경우 화면 선택값도 동기화
-watch(
-  () => [route.query.sort, route.query.favorites],
-  ([newSort, newFavorites]) => {
     sortOption.value = getSortOption(newSort)
     showFavoritesOnly.value = newFavorites === '1'
   },

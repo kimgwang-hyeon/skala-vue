@@ -19,7 +19,14 @@ export const useConfigStore = defineStore('config', () => {
   // 현재 온도 단위: PDF 실습 기준 값
   const unit = ref(getStoredUnit())
   const theme = ref(getStoredTheme())
-  const systemPrefersDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+  // 초기값과 변경 감지가 같은 MediaQueryList를 쓰도록 한 번만 생성
+  const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  const systemPrefersDark = ref(systemThemeQuery.matches)
+
+  systemThemeQuery.addEventListener('change', (event) => {
+    systemPrefersDark.value = event.matches
+  })
 
   // getter 역할
   const unitSymbol = computed(() => {
@@ -54,12 +61,6 @@ export const useConfigStore = defineStore('config', () => {
       theme.value = newTheme
     }
   }
-
-  const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-  systemThemeQuery.addEventListener('change', (event) => {
-    systemPrefersDark.value = event.matches
-  })
 
   // watch 실습: 사용자가 선택한 설정을 저장하고 실제 HTML 테마에 반영
   watch(
