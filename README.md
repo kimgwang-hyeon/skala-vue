@@ -1,39 +1,49 @@
-# 🌤️ SKALA Weather
+# SKALA Weather
 
-Vue 3 수업의 단계별 실습을 **한국어 위치 검색 → 실시간 날씨 조회 → 도시 상태 관리** 흐름으로 확장한 날씨 대시보드입니다.
+**한국어 위치 검색 → 실시간 날씨 조회 → 도시 상태 관리** 흐름으로 확장한 날씨 대시보드입니다. Vue 3 수업의 단계별 실습(Directive → Composition API → Component → Vue Router → Pinia → Axios → UI Library)을 하나의 앱으로 연결했습니다.
 
-**Directive → Composition API → Component → Vue Router → Pinia → Axios → UI Library**를 하나의 앱으로 연결하고, PrimeVue와 VueUse를 활용해 검색·비교·즐겨찾기·지도·테마 기능을 구현했습니다.
+PrimeVue와 VueUse를 활용해 검색·비교·즐겨찾기·지도·테마 기능을 구현했습니다.
 
-[실행 데모](https://skala-vue-olive.vercel.app) · [실습 대비 확장](#실습-대비-확장-포인트) · [코드 근거](#코드-근거-바로가기) · [실행 방법](#실행-방법)
+[![실행 데모](https://img.shields.io/badge/실행_데모-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://skala-vue-olive.vercel.app)
+[![실습 대비 확장](https://img.shields.io/badge/실습_대비_확장-334155?style=for-the-badge)](#실습-대비-확장-포인트)
+[![코드 근거](https://img.shields.io/badge/코드_근거-334155?style=for-the-badge)](#코드-근거-바로가기)
+[![실행 방법](https://img.shields.io/badge/실행_방법-334155?style=for-the-badge)](#실행-방법)
 
 [![SKALA Weather 대시보드](./docs/images/dashboard-overview.png)](./docs/images/dashboard-overview.png)
 
 _Evidence 01 · Pinia에 등록된 도시 상태와 OpenWeather의 실제 날씨를 결합한 메인 대시보드_
 
-## 30초 핵심 요약
+## 핵심 요약
 
-| 핵심 영역 | 과제 외 확장 구현 |
-| --- | --- |
-| **한국어 검색 UX** | `ㅅ`, `ㅅㅇ`, `서ㅇ`, `서우`, `ㅅㅓㅇㅜㄹ` 검색과 쉼표 기반 다중 도시 필터링 |
-| **반응형 데이터 계산** | 대시보드 통계, 24시간 예보, 현지 날짜 기준 5일 요약, 도시 비교 결과를 `computed`로 계산 |
-| **상태와 화면 흐름** | Pinia로 도시·즐겨찾기·단위·테마를 공유하고 Router query로 검색 화면 상태 복원 |
-| **실제 위치 데이터** | Kakao Local·Browser Geolocation에서 좌표를 얻고 OpenWeather 현재 날씨·예보와 연결 |
-| **서비스형 UX** | 최근 검색, 즐겨찾기, 도시 비교, 날씨 지도, 생활 날씨 안내, 라이트·다크 모드 제공 |
+**한국어 검색 UX**
+`ㅅ`, `ㅅㅇ`, `서ㅇ`, `서우`, `ㅅㅓㅇㅜㄹ` 검색과 쉼표 기반 다중 도시 필터링
+
+**반응형 데이터 계산**
+대시보드 통계, 24시간 예보, 현지 날짜 기준 5일 요약, 도시 비교 결과를 `computed`로 계산
+
+**상태와 화면 흐름**
+Pinia로 도시·즐겨찾기·단위·테마를 공유하고 Router query로 검색 화면 상태 복원
+
+**실제 위치 데이터**
+Kakao Local·Browser Geolocation에서 좌표를 얻고 OpenWeather 현재 날씨·예보와 연결
+
+**서비스형 UX**
+최근 검색, 즐겨찾기, 도시 비교, 날씨 지도, 생활 날씨 안내, 라이트·다크 모드 제공
 
 > **검색 흐름 분리:** 내 도시 검색은 이미 받은 데이터를 `computed`로 즉시 필터링하고, 대한민국 도시 검색은 완성된 지역명을 Kakao Local에서 조회한 뒤 사용자가 선택한 좌표로 OpenWeather를 호출합니다.
 
 ## 실습 대비 확장 포인트
 
-| PDF 학습 영역 | 기본 실습 중심 | 이번 프로젝트의 심화·추가 구현 |
-| --- | --- | --- |
-| **1장 · 개발 환경** | Vite 프로젝트 구성 | `views`·`stores`·`api`·`composables`·`utils`로 역할 분리, API 키 환경 변수화 |
-| **2장 · Directive** | 목록·조건·입력·이벤트 처리 | 한글 IME 대응 입력, API 상태별 렌더링, 날씨 Tone 클래스, 카드 이벤트 충돌 방지 |
-| **3장 · Composition API** | `ref`·`computed`·`watch` | 자모·다중 검색, 통계·예보·비교 계산, URL·API·저장소·테마 동기화 |
-| **4장 · Component** | Props·Emits·Slot | Default·`actions`·`footer` Slot, 세분화된 이벤트, 검색 Composable 재사용 |
-| **5장 · Vue Router** | 홈·상세·Not Found | 중첩 탐색, 비교·즐겨찾기·지도, 좌표 기반 동적 경로, 복귀 경로·스크롤 복원 |
-| **6장 · Pinia** | 온도 단위 전역 상태 | 대시보드·즐겨찾기·검색 도시·테마 공유, 좌표 키와 LocalStorage 지속성 |
-| **7장 · Axios** | 단일 날씨 API 호출 | Kakao·OpenWeather 다중 API, 현재 위치, 병렬 요청, 오류·Race Condition 처리 |
-| **8장 · UI Library** | Element Plus 활용 | PrimeVue Custom Preset과 VueUse 기반 Toast·Dialog·Skeleton·테마·디바운스 적용 |
+| PDF 학습 영역             | 기본 실습 중심             | 이번 프로젝트의 심화·추가 구현                                                 |
+| ------------------------- | -------------------------- | ------------------------------------------------------------------------------ |
+| **1장 · 개발 환경**       | Vite 프로젝트 구성         | `views`·`stores`·`api`·`composables`·`utils`로 역할 분리, API 키 환경 변수화   |
+| **2장 · Directive**       | 목록·조건·입력·이벤트 처리 | 한글 IME 대응 입력, API 상태별 렌더링, 날씨 Tone 클래스, 카드 이벤트 충돌 방지 |
+| **3장 · Composition API** | `ref`·`computed`·`watch`   | 자모·다중 검색, 통계·예보·비교 계산, URL·API·저장소·테마 동기화                |
+| **4장 · Component**       | Props·Emits·Slot           | Default·`actions`·`footer` Slot, 세분화된 이벤트, 검색 Composable 재사용       |
+| **5장 · Vue Router**      | 홈·상세·Not Found          | 중첩 탐색, 비교·즐겨찾기·지도, 좌표 기반 동적 경로, 복귀 경로·스크롤 복원      |
+| **6장 · Pinia**           | 온도 단위 전역 상태        | 대시보드·즐겨찾기·검색 도시·테마 공유, 좌표 키와 LocalStorage 지속성           |
+| **7장 · Axios**           | 단일 날씨 API 호출         | Kakao·OpenWeather 다중 API, 현재 위치, 병렬 요청, 오류·Race Condition 처리     |
+| **8장 · UI Library**      | Element Plus 활용          | PrimeVue Custom Preset과 VueUse 기반 Toast·Dialog·Skeleton·테마·디바운스 적용  |
 
 ## 화면으로 확인하는 구현
 
@@ -53,16 +63,16 @@ _Evidence 01 · Pinia에 등록된 도시 상태와 OpenWeather의 실제 날씨
 
 ## 학습 개념과 설계 연결
 
-| 학습 개념 | 적용 기준 | 구현 결과 |
-| --- | --- | --- |
-| **Directive** | 화면 상태와 사용자 동작을 템플릿에서 표현 | 로딩·오류·빈 결과·정상 결과 분기, API 목록 반복, 동적 클래스와 이벤트 수식어 |
-| **`computed`** | 기존 상태에서 계산할 수 있는 파생값 | 한글 검색, 필터·정렬, 통계, 예보 요약, 비교 문구가 원본 변경에 따라 자동 갱신 |
-| **`watch` / `watchEffect`** | 상태 변경 이후 필요한 부수 효과 | API 재호출, URL query 복원, LocalStorage 저장, 테마 메타 색상과 수업 로그 동기화 |
-| **Slot / Props / Emits** | 레이아웃과 상태 책임을 분리 | 공통 카드 레이아웃을 재사용하고 자식은 입력·동작만 부모에게 전달 |
-| **Composable** | 두 화면에서 반복되는 상태와 비동기 흐름 분리 | 도시 검색과 도시 비교가 Kakao 후보·디바운스·오래된 응답 방지 로직 공유 |
-| **Vue Router / Pinia** | URL이 필요한 화면 상태와 앱 전역 상태를 구분 | 탐색·상세·비교·즐겨찾기 경로와 도시·단위·테마 상태를 독립적으로 관리 |
-| **Axios / 외부 API** | 위치와 날씨 공급자를 좌표로 연결 | Kakao·Geolocation의 좌표를 OpenWeather 현재 날씨·예보 요청에 공통 사용 |
-| **PrimeVue / VueUse** | 반복 UI와 브라우저 기능을 검증된 생태계로 보완 | 사용자 피드백·삭제 확인·로딩·테마·저장·디바운스를 기존 디자인과 통합 |
+| 학습 개념                   | 적용 기준                                      | 구현 결과                                                                        |
+| --------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| **Directive**               | 화면 상태와 사용자 동작을 템플릿에서 표현      | 로딩·오류·빈 결과·정상 결과 분기, API 목록 반복, 동적 클래스와 이벤트 수식어     |
+| **`computed`**              | 기존 상태에서 계산할 수 있는 파생값            | 한글 검색, 필터·정렬, 통계, 예보 요약, 비교 문구가 원본 변경에 따라 자동 갱신    |
+| **`watch` / `watchEffect`** | 상태 변경 이후 필요한 부수 효과                | API 재호출, URL query 복원, LocalStorage 저장, 테마 메타 색상과 수업 로그 동기화 |
+| **Slot / Props / Emits**    | 레이아웃과 상태 책임을 분리                    | 공통 카드 레이아웃을 재사용하고 자식은 입력·동작만 부모에게 전달                 |
+| **Composable**              | 두 화면에서 반복되는 상태와 비동기 흐름 분리   | 도시 검색과 도시 비교가 Kakao 후보·디바운스·오래된 응답 방지 로직 공유           |
+| **Vue Router / Pinia**      | URL이 필요한 화면 상태와 앱 전역 상태를 구분   | 탐색·상세·비교·즐겨찾기 경로와 도시·단위·테마 상태를 독립적으로 관리             |
+| **Axios / 외부 API**        | 위치와 날씨 공급자를 좌표로 연결               | Kakao·Geolocation의 좌표를 OpenWeather 현재 날씨·예보 요청에 공통 사용           |
+| **PrimeVue / VueUse**       | 반복 UI와 브라우저 기능을 검증된 생태계로 보완 | 사용자 피드백·삭제 확인·로딩·테마·저장·디바운스를 기존 디자인과 통합             |
 
 ## 데이터 흐름
 
