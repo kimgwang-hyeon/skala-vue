@@ -37,7 +37,7 @@ const toggleDetail = (cityId) => {
 
 <template>
   <div class="dashboard-wrapper">
-    <!-- 6. 도시 검색 영역: 현재는 v-model 방식으로 입력값 연결 -->
+    <!-- 6. 도시 검색 영역: 한글 조합 입력을 다루기 위해 v-model 대신 :value와 @input으로 직접 연결 -->
     <section class="search-box">
       <h3>도시 검색</h3>
       <input

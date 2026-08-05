@@ -43,3 +43,32 @@ const themeOptions = [
     </button>
   </div>
 </template>
+
+<style scoped>
+.theme-switcher {
+  gap: 1px;
+}
+
+.theme-switcher-button {
+  display: grid;
+  width: 27px;
+  height: 26px;
+  padding: 0;
+  color: var(--text-tertiary);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  place-items: center;
+}
+
+.theme-switcher-button:hover {
+  color: var(--text-primary);
+}
+
+.theme-switcher-button.is-active {
+  color: var(--text-primary);
+  background: var(--surface-primary);
+  box-shadow: var(--shadow-small);
+}
+</style>

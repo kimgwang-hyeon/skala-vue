@@ -99,3 +99,64 @@ const handleSubmit = () => {
     </p>
   </section>
 </template>
+
+<style scoped>
+.search-input-row {
+  position: relative;
+}
+
+.search-input-icon {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 13px;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: var(--text-tertiary);
+  stroke-linecap: round;
+  stroke-width: 1.7;
+  transform: translateY(-50%);
+}
+
+.search-box input {
+  min-height: 42px;
+  padding: 0 14px 0 40px;
+  color: var(--text-primary);
+  background: var(--surface-primary);
+  border: 1px solid var(--border-default);
+  border-radius: 7px;
+  outline: 0;
+  box-shadow: none;
+}
+
+.search-box input:focus {
+  border-color: var(--border-strong);
+  box-shadow: var(--focus-ring);
+}
+
+.search-submit-button {
+  min-height: 42px;
+  padding: 0 14px;
+  color: var(--text-inverted);
+  background: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+  border-radius: 7px;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 620;
+}
+
+.search-submit-button:hover:not(:disabled) {
+  color: var(--text-inverted);
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.search-submit-button:disabled {
+  color: var(--text-tertiary);
+  background: var(--surface-tertiary);
+  border-color: var(--border-subtle);
+  opacity: 0.75;
+}
+</style>
