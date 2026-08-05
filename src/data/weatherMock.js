@@ -2,6 +2,8 @@ export const weatherMockList = [
   {
     id: 1835848,
     name: '서울',
+    state: '서울특별시',
+    country: 'KR',
     coord: { lon: 126.978, lat: 37.5665 },
     weather: [{ id: 800, main: 'Clear', description: '맑음', icon: '01d' }],
     main: {
@@ -24,6 +26,8 @@ export const weatherMockList = [
   {
     id: 1835553,
     name: '수원',
+    state: '경기도',
+    country: 'KR',
     coord: { lon: 127.0286, lat: 37.2636 },
     weather: [{ id: 501, main: 'Rain', description: '약한 비', icon: '10d' }],
     main: {
@@ -46,6 +50,8 @@ export const weatherMockList = [
   {
     id: 1838524,
     name: '부산',
+    state: '부산광역시',
+    country: 'KR',
     coord: { lon: 129.0756, lat: 35.1796 },
     weather: [{ id: 803, main: 'Clouds', description: '구름 많음', icon: '04d' }],
     main: {
@@ -67,6 +73,8 @@ export const weatherMockList = [
   {
     id: 1846266,
     name: '제주',
+    state: '제주특별자치도',
+    country: 'KR',
     coord: { lon: 126.5312, lat: 33.4996 },
     weather: [{ id: 601, main: 'Snow', description: '눈', icon: '13d' }],
     main: {
@@ -86,6 +94,27 @@ export const weatherMockList = [
     status: '눈',
     humidity: 85,
   },
-
-  // 수원, 부산, 제주 객체도 현재 코드에서 그대로 옮기기
+  {
+    id: 1835235,
+    name: '대전',
+    state: '대전광역시',
+    country: 'KR',
+    coord: { lon: 127.3845, lat: 36.3504 },
+    weather: [{ id: 802, main: 'Clouds', description: '구름 조금', icon: '03d' }],
+    main: {
+      temp: 27,
+      feels_like: 28,
+      temp_min: 25,
+      temp_max: 29,
+      pressure: 1010,
+      humidity: 65,
+    },
+    visibility: 9000,
+    wind: { speed: 2.2, deg: 160 },
+    clouds: { all: 35 },
+    sys: { country: 'KR' },
+    temp: 27,
+    status: '구름',
+    humidity: 65,
+  },
 ]

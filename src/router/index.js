@@ -11,6 +11,36 @@ const router = createRouter({
       meta: { title: '날씨 대시보드' },
     },
     {
+      path: '/explore',
+      component: () => import('@/views/WeatherExploreView.vue'),
+      children: [
+        {
+          path: '',
+          redirect: { name: 'search' },
+        },
+        {
+          path: 'search',
+          name: 'search',
+          component: () => import('@/views/WeatherSearchView.vue'),
+          meta: { title: '대한민국 도시 검색' },
+        },
+        {
+          path: 'map',
+          name: 'weather-map',
+          component: () => import('@/views/WeatherMapView.vue'),
+          meta: { title: '날씨 지도' },
+        },
+      ],
+    },
+    {
+      path: '/search',
+      redirect: (to) => ({ name: 'search', query: to.query }),
+    },
+    {
+      path: '/map',
+      redirect: (to) => ({ name: 'weather-map', query: to.query }),
+    },
+    {
       path: '/about',
       name: 'about',
       // 지연 로딩 (Lazy Loading)
@@ -29,6 +59,12 @@ const router = createRouter({
       name: 'favorites',
       component: () => import('@/views/WeatherFavoritesView.vue'),
       meta: { title: '즐겨찾기' },
+    },
+    {
+      path: '/compare',
+      name: 'weather-compare',
+      component: () => import('@/views/WeatherCompareView.vue'),
+      meta: { title: '도시 날씨 비교' },
     },
     {
       // 정의되지 않은 모든 경로는 NotFoundView로 연결 (Catch-all)

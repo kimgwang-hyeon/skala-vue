@@ -1,0 +1,129 @@
+:root {
+  color-scheme: light;
+  --page-background: #ffffff;
+  --surface-primary: #ffffff;
+  --surface-secondary: #fafafa;
+  --surface-tertiary: #f2f2f2;
+  --surface-inverted: #1d1d1f;
+  --text-primary: #1d1d1f;
+  --text-secondary: #666666;
+  --text-tertiary: #8f8f8f;
+  --text-inverted: #ffffff;
+  --border-subtle: #ebebeb;
+  --border-default: #dedede;
+  --border-strong: #a8a8a8;
+  --accent-primary: #1d1d1f;
+  --accent-hover: #3a3a3c;
+  --accent-soft: #f2f2f2;
+  --blue: #0070f3;
+  --blue-soft: #eef6ff;
+  --green: #0a7b3e;
+  --green-soft: #eaf8ef;
+  --amber: #a85d00;
+  --amber-soft: #fff6df;
+  --red: #d92d20;
+  --red-soft: #fff0f0;
+  --shadow-small: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.07);
+  --focus-ring: 0 0 0 2px var(--page-background), 0 0 0 4px var(--blue);
+  --radius-small: 6px;
+  --radius-medium: 10px;
+  --radius-large: 14px;
+  --content-width: 1200px;
+  --font-sans: Pretendard, Geist, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  /* Vite 기본 스타일과 기존 실습 CSS에서도 새 테마를 사용하도록 연결 */
+  --color-background: var(--page-background);
+  --color-background-soft: var(--surface-secondary);
+  --color-background-mute: var(--surface-tertiary);
+  --color-border: var(--border-subtle);
+  --color-border-hover: var(--border-default);
+  --color-heading: var(--text-primary);
+  --color-text: var(--text-primary);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page-background: #000000;
+  --surface-primary: #0a0a0a;
+  --surface-secondary: #111111;
+  --surface-tertiary: #1a1a1a;
+  --surface-inverted: #ededed;
+  --text-primary: #ededed;
+  --text-secondary: #a1a1a1;
+  --text-tertiary: #737373;
+  --text-inverted: #0a0a0a;
+  --border-subtle: #242424;
+  --border-default: #333333;
+  --border-strong: #666666;
+  --accent-primary: #ededed;
+  --accent-hover: #ffffff;
+  --accent-soft: #1a1a1a;
+  --blue: #52a8ff;
+  --blue-soft: #071d31;
+  --green: #45d483;
+  --green-soft: #092719;
+  --amber: #f5a623;
+  --amber-soft: #2c1d06;
+  --red: #ff6b62;
+  --red-soft: #321010;
+  --shadow-small: 0 1px 2px rgba(0, 0, 0, 0.55);
+  --shadow-medium: 0 12px 36px rgba(0, 0, 0, 0.5);
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--page-background);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  color: var(--text-primary);
+  background: var(--page-background);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  color: var(--text-inverted);
+  background: var(--accent-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

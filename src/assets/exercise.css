@@ -24,7 +24,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -115,12 +116,13 @@ a {
 }
 
 .nav-bar a {
-  flex: 1;
-  max-width: 220px;
-  padding: 11px 16px;
+  flex: 0 1 auto;
+  padding: 10px 9px;
   color: #64748b;
   text-align: center;
   text-decoration: none;
+  white-space: nowrap;
+  font-size: 13px;
   font-weight: 700;
   border-radius: 10px;
   transition:
@@ -181,7 +183,13 @@ a {
 }
 
 /* 검색창 */
+.search-input-row {
+  display: flex;
+  gap: 10px;
+}
+
 .search-box input {
+  flex: 1;
   width: 100%;
   padding: 13px 15px;
   color: #0f172a;
@@ -213,6 +221,124 @@ a {
 
 .search-box strong {
   color: #2563eb;
+}
+
+.search-submit-button,
+.btn-toolbar,
+.btn-dashboard-add,
+.btn-remove-card {
+  padding: 9px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 750;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.search-submit-button {
+  min-width: 120px;
+  color: #ffffff;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+}
+
+.search-submit-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.search-submit-button:disabled {
+  color: #94a3b8;
+  background: #e2e8f0;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+}
+
+.search-guide,
+.search-validation {
+  margin: 14px 2px 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.search-guide a {
+  color: #2563eb;
+  font-weight: 800;
+}
+
+.search-validation {
+  color: #b45309;
+}
+
+.page-intro {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  color: #475569;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 11px;
+}
+
+.page-intro strong {
+  color: #1e3a5f;
+}
+
+.page-intro p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.location-search-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 13px 14px;
+  color: #334155;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 11px;
+}
+
+.location-search-row strong,
+.location-search-row p {
+  margin: 0;
+}
+
+.location-search-row strong {
+  font-size: 13px;
+}
+
+.location-search-row p {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.btn-current-location {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  color: #ffffff;
+  background: #16a34a;
+  border: 1px solid #16a34a;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.btn-current-location:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.btn-current-location:disabled {
+  opacity: 0.55;
+  cursor: wait;
 }
 
 /* 최근 검색어 */
@@ -271,7 +397,7 @@ a {
   position: relative;
   min-height: 126px;
   margin-top: 12px;
-  padding: 18px 124px 18px 18px;
+  padding: 18px 220px 18px 18px;
   background: linear-gradient(135deg, #ffffff, #f8fbff);
   border: 1px solid #dbe4f0;
   border-radius: 14px;
@@ -284,6 +410,38 @@ a {
 
 .weather-card:first-of-type {
   margin-top: 0;
+}
+
+/* OpenWeather 상태에 따라 카드와 상세 헤더의 배경을 변경 */
+.weather-tone-clear {
+  background: linear-gradient(135deg, #fffdf1, #fffbeb);
+  border-color: #fde68a;
+}
+
+.weather-tone-cloud {
+  background: linear-gradient(135deg, #ffffff, #f1f5f9);
+  border-color: #cbd5e1;
+}
+
+.weather-tone-rain {
+  background: linear-gradient(135deg, #f8fcff, #e0f2fe);
+  border-color: #bae6fd;
+}
+
+.weather-tone-snow {
+  background: linear-gradient(135deg, #ffffff, #eff6ff);
+  border-color: #bfdbfe;
+}
+
+.weather-tone-storm {
+  background: linear-gradient(135deg, #faf5ff, #ede9fe);
+  border-color: #ddd6fe;
+}
+
+.weather-tone-mist,
+.weather-tone-default {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border-color: #e2e8f0;
 }
 
 .weather-card:hover {
@@ -302,6 +460,66 @@ a {
   margin: 4px 0;
   color: #526277;
   font-size: 14px;
+}
+
+.weather-card .weather-location {
+  margin-top: -4px;
+  margin-bottom: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.weather-card .weather-status,
+.detail-description {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.weather-status strong {
+  font-size: 12px;
+}
+
+.condition-clear {
+  color: #b45309 !important;
+  background: #fffbeb;
+  border-color: #fde68a !important;
+}
+
+.condition-cloud {
+  color: #475569 !important;
+  background: #f1f5f9;
+  border-color: #cbd5e1 !important;
+}
+
+.condition-rain {
+  color: #0369a1 !important;
+  background: #f0f9ff;
+  border-color: #bae6fd !important;
+}
+
+.condition-snow {
+  color: #1d4ed8 !important;
+  background: #eff6ff;
+  border-color: #bfdbfe !important;
+}
+
+.condition-storm {
+  color: #6d28d9 !important;
+  background: #f5f3ff;
+  border-color: #ddd6fe !important;
+}
+
+.condition-mist,
+.condition-default {
+  color: #475569 !important;
+  background: #f8fafc;
+  border-color: #e2e8f0 !important;
 }
 
 .badge {
@@ -344,17 +562,339 @@ a {
     box-shadow 160ms ease;
 }
 
-.btn-detail {
+/* Ventusky 임베드와 Vue 도시 요약을 결합한 날씨 지도 */
+.ventusky-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.ventusky-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ventusky-controls select {
+  padding: 8px 10px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.ventusky-layer-buttons {
+  display: flex;
+  gap: 7px;
+}
+
+.ventusky-layer-buttons button {
+  padding: 8px 11px;
+  color: #526277;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ventusky-layer-buttons button:hover,
+.ventusky-layer-buttons button.is-active {
+  color: #ffffff;
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.ventusky-view-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin: -4px 0 10px;
+}
+
+.ventusky-view-actions button,
+.ventusky-view-actions a {
+  padding: 7px 9px;
+  color: #526277;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.ventusky-view-actions button:hover,
+.ventusky-view-actions a:hover {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+.ventusky-frame-wrapper {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  background: #e2e8f0;
+}
+
+.ventusky-frame {
+  display: block;
+  width: 100%;
+  height: 420px;
+  border: 0;
+  transition: height 180ms ease;
+}
+
+.ventusky-frame-wrapper.is-expanded .ventusky-frame {
+  height: 650px;
+}
+
+.ventusky-guide {
+  margin: 9px 2px 0;
+  color: #64748b;
+  font-size: 11px;
+  text-align: right;
+}
+
+.map-city-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 104px;
+  margin-top: 14px;
+  padding: 15px 16px;
+  background: #f8fafc;
+  border: 1px solid #dbe4f0;
+  border-radius: 12px;
+}
+
+.map-summary-state {
+  width: 100%;
+  margin: 0;
+  color: #64748b;
+  text-align: center;
+}
+
+.map-summary-state.error {
+  color: #b91c1c;
+}
+
+.map-summary-emoji {
+  font-size: 38px;
+}
+
+.map-summary-city {
+  display: flex;
+  min-width: 130px;
+  flex-direction: column;
+}
+
+.map-summary-city span,
+.map-summary-city p {
+  margin: 0;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.map-summary-city strong {
+  margin: 2px 0;
+  color: #0f2742;
+  font-size: 18px;
+}
+
+.map-summary-values {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.map-summary-values p {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  padding: 9px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.map-summary-values span {
+  color: #64748b;
+  font-size: 10px;
+}
+
+.map-summary-values strong {
+  color: #1e293b;
+  font-size: 13px;
+}
+
+/* 두 도시 API 결과 비교 */
+.compare-selectors {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.compare-selectors label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.compare-selectors select {
+  width: 100%;
+  padding: 10px 11px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+}
+
+.btn-swap-cities {
+  padding: 10px 12px;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.compare-weather-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.compare-weather-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 150px;
+  padding: 18px 98px 18px 18px;
+  border: 1px solid #dbe4f0;
+  border-radius: 14px;
+}
+
+.compare-weather-card span,
+.compare-weather-card h3,
+.compare-weather-card p {
+  margin: 0;
+}
+
+.compare-weather-emoji {
+  font-size: 38px;
+}
+
+.compare-weather-card div > span,
+.compare-weather-card p {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.compare-weather-card h3 {
+  margin: 3px 0;
+  color: #0f2742;
+  font-size: 18px;
+}
+
+.compare-weather-card div > strong {
+  color: #1d4ed8;
+  font-size: 22px;
+}
+
+.compare-weather-card button {
   position: absolute;
-  top: 18px;
-  right: 18px;
+  right: 14px;
+  bottom: 14px;
+  padding: 7px 9px;
+  color: #ffffff;
+  background: #2563eb;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.comparison-summary {
+  margin: 12px 0;
+  padding: 11px 13px;
+  color: #475569;
+  text-align: center;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.comparison-summary strong {
+  color: #1d4ed8;
+}
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+}
+
+.comparison-table {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: separate;
+  overflow: hidden;
+  border: 1px solid #dbe4f0;
+  border-radius: 11px;
+  font-size: 12px;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.comparison-table thead th {
+  color: #334155;
+  background: #f1f5f9;
+}
+
+.comparison-table tbody th {
+  color: #475569;
+  background: #f8fafc;
+}
+
+.comparison-table td:last-child {
+  color: #1d4ed8;
+  font-weight: 750;
+}
+
+.comparison-table tbody tr:last-child th,
+.comparison-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.btn-detail {
   padding: 9px 12px;
 }
 
 .btn-favorite {
-  position: absolute;
-  top: 17px;
-  right: 100px;
   width: 32px;
   height: 32px;
   padding: 0;
@@ -369,6 +909,51 @@ a {
     color 160ms ease,
     background 160ms ease,
     transform 160ms ease;
+}
+
+.weather-card-actions {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  width: 190px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.btn-dashboard-add {
+  color: #166534;
+  background: #ecfdf3;
+  border: 1px solid #bbf7d0;
+  font-size: 12px;
+}
+
+.btn-dashboard-add:hover:not(:disabled) {
+  color: #ffffff;
+  background: #16a34a;
+  border-color: #16a34a;
+}
+
+.btn-dashboard-add:disabled {
+  color: #94a3b8;
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  cursor: default;
+}
+
+.btn-remove-card {
+  color: #b91c1c;
+  background: #fff7f7;
+  border: 1px solid #fecaca;
+  font-size: 12px;
+}
+
+.btn-remove-card:hover {
+  color: #ffffff;
+  background: #dc2626;
+  border-color: #dc2626;
 }
 
 .btn-favorite:hover,
@@ -395,6 +980,136 @@ a {
   background: #f8fafc;
   border: 1px dashed #cbd5e1;
   border-radius: 12px;
+}
+
+.empty-message p {
+  margin: 0 0 12px;
+}
+
+.empty-message .route-button + .route-button {
+  margin-left: 8px;
+}
+
+.route-button.secondary {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.dashboard-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.dashboard-toolbar > div {
+  display: flex;
+  gap: 7px;
+}
+
+.dashboard-view-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 11px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.dashboard-view-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #526277;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.dashboard-view-controls select {
+  padding: 7px 28px 7px 9px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+}
+
+.dashboard-view-controls select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.dashboard-favorite-filter {
+  cursor: pointer;
+}
+
+.dashboard-favorite-filter input {
+  width: 16px;
+  height: 16px;
+  accent-color: #f59e0b;
+}
+
+.btn-toolbar {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  font-size: 12px;
+}
+
+.btn-toolbar:hover {
+  color: #ffffff;
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.dashboard-summary,
+.search-result-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.dashboard-summary span,
+.search-result-summary span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 12px;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.dashboard-summary strong {
+  color: #1d4ed8;
+  font-size: 13px;
+}
+
+.search-result-summary span {
+  flex-direction: row;
+  color: #1e3a5f;
+  font-weight: 750;
+}
+
+.inline-alert {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 9px;
+  font-size: 13px;
 }
 
 /* 상세 날씨 */
@@ -460,9 +1175,7 @@ a {
 }
 
 .detail-description {
-  margin-top: 4px !important;
-  color: #64748b;
-  font-size: 14px;
+  margin-top: 7px !important;
 }
 
 .weather-icon {
@@ -511,6 +1224,310 @@ a {
 
 .detail-extra p + p {
   margin-top: 4px;
+}
+
+/* computed로 만든 생활 날씨 안내 */
+.weather-warning-section {
+  margin-top: 14px;
+}
+
+.warning-caption {
+  margin: 0 0 8px;
+  color: #94a3b8;
+  font-size: 11px;
+  text-align: right;
+}
+
+.weather-warning-list {
+  display: grid;
+  gap: 8px;
+}
+
+.weather-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid;
+  border-radius: 11px;
+}
+
+.weather-warning strong,
+.weather-warning p {
+  margin: 0;
+}
+
+.weather-warning strong {
+  color: #1e293b;
+  font-size: 13px;
+}
+
+.weather-warning p {
+  margin-top: 3px;
+  color: #526277;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.warning-emoji {
+  font-size: 22px;
+}
+
+.warning-danger {
+  background: #fff7f7;
+  border-color: #fecaca;
+}
+
+.warning-rain {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+
+.warning-wind {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.warning-cold {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+/* 상세 페이지: OpenWeather 3시간 간격 예보 */
+.forecast-section {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid #dbe4f0;
+}
+
+.forecast-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.forecast-heading h3,
+.forecast-eyebrow,
+.forecast-summary span,
+.forecast-status,
+.selected-forecast p {
+  margin: 0;
+}
+
+.forecast-heading h3 {
+  margin-top: 3px;
+  color: #0f2742;
+  font-size: 18px;
+}
+
+.forecast-eyebrow {
+  color: #3b82f6;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.forecast-summary {
+  display: flex;
+  gap: 8px;
+}
+
+.forecast-summary span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  color: #64748b;
+  background: #eff6ff;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.forecast-summary strong {
+  color: #1d4ed8;
+  font-size: 13px;
+}
+
+.forecast-list {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(88px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+  padding-bottom: 5px;
+  overflow-x: auto;
+}
+
+.forecast-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 88px;
+  padding: 11px 8px;
+  color: #475569;
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+  border-radius: 11px;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.forecast-card:hover {
+  border-color: #93c5fd;
+  transform: translateY(-2px);
+}
+
+.forecast-card.is-selected {
+  color: #ffffff;
+  background: linear-gradient(145deg, #3b82f6, #2563eb);
+  border-color: #2563eb;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
+}
+
+.forecast-card img {
+  width: 42px;
+  height: 42px;
+}
+
+.forecast-time,
+.forecast-rain {
+  font-size: 11px;
+}
+
+.forecast-time {
+  white-space: nowrap;
+}
+
+.forecast-rain {
+  color: #0ea5e9;
+}
+
+.forecast-card.is-selected .forecast-rain {
+  color: #dbeafe;
+}
+
+.forecast-status {
+  margin-top: 10px;
+  color: #64748b;
+  font-size: 12px;
+  text-align: right;
+}
+
+.selected-forecast {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.7fr) minmax(0, 1.3fr);
+  gap: 14px;
+  margin-top: 12px;
+  padding: 14px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+}
+
+.selected-forecast-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-forecast-title img {
+  width: 64px;
+  height: 64px;
+}
+
+.selected-forecast-title div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selected-forecast-title span,
+.selected-forecast-grid span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.selected-forecast-title strong {
+  color: #0f2742;
+  font-size: 16px;
+}
+
+.selected-forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.selected-forecast-grid p {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 8px;
+}
+
+.selected-forecast-grid strong {
+  color: #1e293b;
+  font-size: 13px;
+}
+
+/* 3시간 예보 40개를 날짜별로 묶은 5일 요약 */
+.daily-forecast-section {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid #dbe4f0;
+}
+
+.daily-forecast-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.daily-forecast-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 8px;
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.daily-date {
+  color: #334155;
+  font-size: 12px;
+}
+
+.daily-weather-icon {
+  font-size: 28px;
+}
+
+.daily-weather-label,
+.daily-rain {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.daily-temperature {
+  margin: 2px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.daily-temperature strong {
+  color: #dc2626;
+  font-size: 14px;
 }
 
 .detail-coordinates {
@@ -588,6 +1605,12 @@ a {
   border-radius: 12px;
 }
 
+.about-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
 .route-button {
   display: inline-block;
   padding: 11px 15px;
@@ -624,11 +1647,39 @@ a {
 .unit-toggler-button:focus-visible,
 .btn-detail:focus-visible,
 .btn-favorite:focus-visible,
+.btn-dashboard-add:focus-visible,
+.btn-remove-card:focus-visible,
+.btn-toolbar:focus-visible,
+.search-submit-button:focus-visible,
 .btn-back:focus-visible,
 .btn-city-nav:focus-visible,
 .route-button:focus-visible {
   outline: 3px solid rgba(59, 130, 246, 0.3);
   outline-offset: 3px;
+}
+
+.forecast-card:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.3);
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .nav-bar {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+  }
+
+  .nav-bar a {
+    flex: 1 1 calc(33.333% - 8px);
+  }
+
+  .unit-toggler {
+    justify-content: center;
+  }
 }
 
 @media (max-width: 640px) {
@@ -647,11 +1698,55 @@ a {
   }
 
   .nav-bar a {
+    flex-basis: auto;
     max-width: none;
   }
 
   .unit-toggler {
     justify-content: center;
+  }
+
+  .ventusky-frame {
+    height: 380px;
+  }
+
+  .ventusky-frame-wrapper.is-expanded .ventusky-frame {
+    height: 560px;
+  }
+
+  .ventusky-controls,
+  .map-city-summary {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ventusky-controls label {
+    justify-content: space-between;
+  }
+
+  .ventusky-controls select {
+    flex: 1;
+  }
+
+  .ventusky-view-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .map-summary-values {
+    width: 100%;
+  }
+
+  .compare-selectors {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-swap-cities {
+    justify-self: center;
+  }
+
+  .compare-weather-cards {
+    grid-template-columns: 1fr;
   }
 
   .dashboard-card,
@@ -666,20 +1761,74 @@ a {
     padding: 16px;
   }
 
-  .btn-detail {
+  .weather-card-actions {
     position: static;
-    display: block;
     width: 100%;
+    justify-content: flex-start;
     margin-top: 14px;
   }
 
-  .btn-favorite {
-    top: 15px;
-    right: 15px;
+  .weather-card-actions .btn-detail {
+    margin-left: auto;
+  }
+
+  .search-input-row {
+    flex-direction: column;
+  }
+
+  .location-search-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .search-submit-button {
+    width: 100%;
+  }
+
+  .dashboard-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dashboard-toolbar > div {
+    flex-wrap: wrap;
+  }
+
+  .dashboard-view-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .empty-message .route-button {
+    display: block;
+    margin-top: 8px;
+  }
+
+  .empty-message .route-button + .route-button {
+    margin-left: 0;
   }
 
   .detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .forecast-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .forecast-summary span {
+    flex: 1;
+  }
+
+  .selected-forecast {
+    grid-template-columns: 1fr;
+  }
+
+  .daily-forecast-list {
+    grid-template-columns: repeat(5, minmax(104px, 1fr));
+    padding-bottom: 5px;
+    overflow-x: auto;
   }
 
   .detail-route-actions {
@@ -694,5 +1843,9 @@ a {
 @media (max-width: 420px) {
   .detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .selected-forecast-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
