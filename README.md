@@ -17,84 +17,84 @@
 
 ### 검색과 위치 탐색
 
-- **[초성·혼합 자모 검색](./src/views/WeatherHomeView.vue#L195-L353)** — `ㅅ`, `ㅅㅇ`, `서ㅇ`, `서우`, `ㅅㅓㅇㅜㄹ` 입력을 모두 `서울`과 일치시키는 한글 분해·접두 검색을 구현했습니다.
-- **[쉼표 다중 검색](./src/views/WeatherHomeView.vue#L334-L355)** — `서울, 부산`처럼 여러 검색어를 나눠 등록 도시를 한 번에 필터링합니다.
-- **[검색 흐름 분리](./src/views/WeatherHomeView.vue#L342-L378)** — 내 도시는 이미 받은 데이터를 `computed`로 즉시 검색하고, 전국 검색만 외부 API를 호출하도록 역할을 나눴습니다.
+- **[초성·혼합 자모 검색](./src/views/WeatherHomeView.vue#L195-L354)** — `ㅅ`, `ㅅㅇ`, `서ㅇ`, `서우`, `ㅅㅓㅇㅜㄹ` 입력을 모두 `서울`과 일치시키는 한글 분해·접두 검색을 구현했습니다.
+- **[쉼표 다중 검색](./src/views/WeatherHomeView.vue#L333-L354)** — `서울, 부산`처럼 여러 검색어를 나눠 등록 도시를 한 번에 필터링합니다.
+- **[검색 흐름 분리](./src/views/WeatherHomeView.vue#L341-L379)** — 내 도시는 이미 받은 데이터를 `computed`로 즉시 검색하고, [전국 검색](./src/views/WeatherSearchView.vue#L152-L248)만 외부 API를 호출하도록 역할을 나눴습니다.
 - **[대한민국 행정구역 자동완성](./src/composables/useLocationSearch.js#L9-L105)** — 완성된 한글 두 글자 이상을 Kakao Local에서 조회하고, 행정구역만 남긴 뒤 같은 좌표의 후보를 제거합니다.
-- **[정확한 좌표 선택 검색](./src/views/WeatherSearchView.vue#L143-L244)** — 여러 후보는 사용자가 선택하고, 정확히 일치하거나 후보가 한 곳일 때만 Enter·검색 버튼으로 바로 날씨를 조회합니다.
+- **[정확한 좌표 선택 검색](./src/views/WeatherSearchView.vue#L152-L248)** — 여러 후보는 사용자가 선택하고, 정확히 일치하거나 후보가 한 곳일 때만 Enter·검색 버튼으로 바로 날씨를 조회합니다.
 - **[검색 디바운스](./src/composables/useLocationSearch.js#L93-L127)** — 입력이 멈춘 뒤 400ms 후 후보를 조회해 타이핑 중 불필요한 API 호출을 줄였습니다.
-- **[최근 검색 기록 분리](./src/utils/weatherStorage.js#L1-L39)** — 대시보드 필터 검색과 API 지역 검색을 목적별 목록으로 나눠 각각 최대 5개까지 저장·재사용·삭제합니다.
-- **[현재 위치 날씨](./src/views/WeatherSearchView.vue#L246-L334)** — 사용자가 버튼을 누른 경우에만 위치 권한을 요청하고, 좌표 → 역지오코딩 → 대한민국 도시 날씨 순서로 연결합니다.
-- **[검색 결과 상태 계산](./src/views/WeatherSearchView.vue#L47-L60)** — 결과 수와 대시보드·즐겨찾기 등록 수를 `computed`로 집계하고, 결과 카드에서 추가·즐겨찾기·상세 이동을 제공합니다.
+- **[최근 검색 저장소 분리](./src/utils/weatherStorage.js#L23-L34)** — [대시보드 필터 검색](./src/views/WeatherHomeView.vue#L447-L497)과 [API 지역 검색](./src/views/WeatherSearchView.vue#L124-L150)을 목적별 목록으로 나눠 각각 최대 5개까지 저장하고, API 검색도 [재사용·삭제](./src/views/WeatherSearchView.vue#L336-L343)할 수 있게 했습니다.
+- **[현재 위치 날씨](./src/views/WeatherSearchView.vue#L250-L334)** — 사용자가 버튼을 누른 경우에만 위치 권한을 요청하고, 좌표 → 역지오코딩 → 대한민국 도시 날씨 순서로 연결합니다.
+- **[검색 결과 상태 계산](./src/views/WeatherSearchView.vue#L53-L64)** — 결과 수와 대시보드·즐겨찾기 등록 수를 `computed`로 집계하고, [결과 카드 동작](./src/views/WeatherSearchView.vue#L345-L382)으로 추가·즐겨찾기·상세 이동을 제공합니다.
 
 ### 대시보드와 전역 상태
 
-- **[기본 대표 도시 5곳](./src/data/weatherMock.js#L1-L120)** — Mock Data는 대표 좌표로만 사용하고, 화면의 기온·습도·바람은 OpenWeather의 실제 응답으로 교체했습니다.
-- **[사용자 대시보드 관리](./src/stores/weatherStore.js#L193-L235)** — 검색 도시 추가, 카드 삭제, 기본 도시 복원, 전체 날씨 새로고침을 제공하고 확인창·알림으로 결과를 안내합니다.
-- **[다중 기준 정렬](./src/views/WeatherHomeView.vue#L124-L378)** — 등록순, 기온 높은 순·낮은 순, 습도 높은 순, 한글 도시 이름순으로 카드를 정렬합니다.
-- **[즐겨찾기 필터](./src/views/WeatherHomeView.vue#L357-L378)** — 검색 결과에 즐겨찾기 조건을 추가로 적용하고 선택 상태를 URL에도 보존합니다.
-- **[한눈에 보기](./src/views/WeatherHomeView.vue#L381-L425)** — 등록 도시 수, 현재 평균 기온, 가장 더운 도시, 즐겨찾기 수를 반응형 파생값으로 계산합니다.
-- **[대표 도시와 갱신 시각](./src/views/WeatherHomeView.vue#L402-L425)** — 첫 번째 등록 도시를 대표 날씨로 표시하고 API 요청이 성공한 마지막 갱신 시각을 보여줍니다.
-- **[즐겨찾기 전용 페이지](./src/views/WeatherFavoritesView.vue#L1-L190)** — 저장 도시의 실제 현재 날씨를 다시 조회하고, 도시 수와 평균 기온을 `computed`로 계산합니다.
-- **[좌표 기반 도시 식별](./src/stores/weatherStore.js#L12-L115)** — 위·경도를 공통 키로 사용해 공급자별 도시명 차이를 흡수하고 기본 도시 좌표 정규화와 중복 방지를 처리합니다.
-- **[`computed Set` 등록 여부 계산](./src/stores/weatherStore.js#L168-L187)** — 대시보드·즐겨찾기 좌표 키를 `Set`으로 파생해 여러 카드와 검색 결과에서 포함 여부를 반복 확인합니다.
-- **[브라우저 상태 복원](./src/stores/weatherStore.js#L140-L261)** — 대시보드·즐겨찾기·검색 도시를 저장해 새로고침 후 복원하고, 이전 숫자 ID 즐겨찾기도 좌표 기반 구조로 마이그레이션합니다.
+- **[기본 대표 도시 5곳](./src/data/weatherMock.js#L1-L120)** — Mock Data는 [기본 도시의 이름·행정구역·대표 좌표 초기값](./src/stores/weatherStore.js#L23-L32)으로만 사용하고, 화면의 기온·습도·바람은 [OpenWeather 응답](./src/views/WeatherHomeView.vue#L71-L112)으로 교체했습니다.
+- **[사용자 대시보드 관리](./src/stores/weatherStore.js#L204-L236)** — 검색 도시 추가, 카드 삭제, 기본 도시 복원을 Store Action으로 제공하고, [확인창·알림·전체 새로고침](./src/views/WeatherHomeView.vue#L559-L619)으로 결과를 안내합니다.
+- **[다중 기준 정렬](./src/views/WeatherHomeView.vue#L124-L134)** — 등록순, 기온 높은 순·낮은 순, 습도 높은 순, 한글 도시 이름순 옵션을 정의하고 [정렬 `computed`](./src/views/WeatherHomeView.vue#L356-L379)로 카드 순서를 계산합니다.
+- **[즐겨찾기 필터](./src/views/WeatherHomeView.vue#L356-L379)** — 검색 결과에 즐겨찾기 조건을 추가로 적용하고 [선택 상태를 URL에도 보존](./src/views/WeatherHomeView.vue#L143-L193)합니다.
+- **[한눈에 보기](./src/views/WeatherHomeView.vue#L381-L400)** — 평균 기온과 가장 더운 도시는 `computed`로 계산하고, 등록 도시·즐겨찾기 수는 Pinia 목록 길이와 함께 [요약 패널](./src/views/WeatherHomeView.vue#L684-L710)에 표시합니다.
+- **[대표 도시와 갱신 시각](./src/views/WeatherHomeView.vue#L402-L426)** — 첫 번째 등록 도시를 대표 날씨로 표시하고 [API 요청이 성공한 시각](./src/views/WeatherHomeView.vue#L95-L109)을 기록해 마지막 갱신 시각을 보여줍니다.
+- **[즐겨찾기 전용 페이지](./src/views/WeatherFavoritesView.vue#L33-L91)** — 저장 도시의 실제 현재 날씨를 다시 조회하고, 도시 수와 평균 기온을 `computed`로 계산합니다.
+- **[좌표 기반 도시 식별](./src/stores/weatherStore.js#L12-L111)** — 위·경도를 공통 키로 사용해 공급자별 도시명 차이를 흡수하고 기본 도시 좌표 정규화와 중복 방지를 처리합니다.
+- **[`computed Set` 등록 여부 계산](./src/stores/weatherStore.js#L173-L187)** — 대시보드·즐겨찾기 좌표 키를 `Set`으로 파생해 여러 카드와 검색 결과에서 포함 여부를 반복 확인합니다.
+- **[브라우저 상태 복원](./src/stores/weatherStore.js#L140-L171)** — 대시보드·즐겨찾기·검색 도시를 복원하고 이전 숫자 ID 즐겨찾기를 좌표 기반 구조로 마이그레이션하며, 변경값은 [deep `watch`로 자동 저장](./src/stores/weatherStore.js#L238-L261)합니다.
 
 ### 상세 날씨와 데이터 가공
 
-- **[상세 기상 관측](./src/views/WeatherDetailView.vue#L207-L487)** — 현재·체감·최저·최고 기온, 습도, 기압, 풍속·풍향, 구름량, 가시거리, 강수·적설을 한 화면에 표시합니다.
-- **[날씨 코드 한국어 표준화](./src/utils/weatherDisplay.js#L1-L109)** — OpenWeather Condition ID를 기준으로 날씨 문구·이모지·시각 Tone을 일관되게 변환합니다.
-- **[3단계 온도 상태 문구](./src/components/exercise/WeatherCard.vue#L55-L69)** — 기본 2단계 조건을 `매우 더움 / 포근함 / 서늘함` 세 단계로 확장했습니다.
-- **[앞으로 24시간 예보](./src/views/WeatherDetailView.vue#L233-L291)** — 3시간 간격 예보 8개를 선택 가능한 카드로 표시하고 도시 현지 시간대를 반영합니다.
-- **[선택 시간대 상세·요약](./src/views/WeatherDetailView.vue#L257-L291)** — 24시간 최고 기온·최대 강수 확률과 선택 시각의 체감·습도·풍속·3시간 강수량을 계산합니다.
-- **[현지 날짜 기준 5일 요약](./src/views/WeatherDetailView.vue#L293-L341)** — 40개 예보를 도시 날짜별로 묶어 최저·최고 기온, 최대 강수 확률, 정오에 가까운 대표 날씨를 계산합니다.
+- **[상세 기상 관측 계산](./src/views/WeatherDetailView.vue#L206-L231)** — 현재·체감·최저·최고 기온을 선택 단위로 가공하고, 습도·기압·풍속·풍향·구름량·가시거리·강수·적설을 [관측 화면](./src/views/WeatherDetailView.vue#L397-L487)에 표시합니다.
+- **[날씨 코드 한국어 표준화](./src/utils/weatherDisplay.js#L1-L110)** — OpenWeather Condition ID를 기준으로 날씨 문구·이모지·시각 Tone을 일관되게 변환합니다.
+- **[3단계 온도 상태 문구](./src/components/exercise/WeatherCard.vue#L59-L69)** — 기본 2단계 조건을 `매우 더움 / 포근함 / 서늘함` 세 단계로 확장했습니다.
+- **[앞으로 24시간 예보 계산](./src/views/WeatherDetailView.vue#L233-L290)** — 3시간 간격 예보 8개와 도시 현지 시각을 계산하고 [선택 가능한 카드 UI](./src/views/WeatherDetailView.vue#L510-L602)로 표시합니다.
+- **[선택 시간대 상세·요약](./src/views/WeatherDetailView.vue#L256-L290)** — 24시간 최고 기온·최대 강수 확률을 계산하고 선택 시각의 체감·습도·풍속·3시간 강수량을 [상세 패널](./src/views/WeatherDetailView.vue#L517-L600)에 표시합니다.
+- **[현지 날짜 기준 5일 요약](./src/views/WeatherDetailView.vue#L292-L341)** — 40개 예보를 도시 날짜별로 묶어 최저·최고 기온, 최대 강수 확률, 정오에 가까운 대표 날씨를 계산합니다.
 - **[생활 날씨 안내](./src/utils/weatherWarnings.js#L1-L76)** — 현재·24시간 예보의 폭염, 한파, 강수, 강풍, 뇌우, 눈 조건을 계산해 생활 참고 문구를 제공합니다.
 
 ### 도시 비교와 날씨 지도
 
-- **[두 도시 실시간 비교](./src/views/WeatherCompareView.vue#L177-L268)** — 현재 기온, 체감온도, 습도, 풍속, 기압, 구름량과 기온 차이를 같은 기준으로 계산합니다.
-- **[비교 도시 검색·교체](./src/views/WeatherCompareView.vue#L26-L106)** — 대시보드·즐겨찾기 빠른 선택과 좌우 독립 Kakao 검색을 함께 제공하고 두 도시 위치를 즉시 맞바꿉니다.
-- **[자연스러운 한국어 비교 문구](./src/views/WeatherCompareView.vue#L177-L199)** — 도시 이름의 받침을 판별해 `성남시가`, `서울이`처럼 `이/가` 조사를 자동 선택합니다.
-- **[Ventusky 인터랙티브 지도](./src/views/WeatherMapView.vue#L9-L61)** — 선택 좌표를 중심으로 기온·강풍 레이어와 시간축을 확인할 수 있는 지도를 Embed로 연결합니다.
-- **[대시보드 도시 지도 핀](./src/views/WeatherMapView.vue#L29-L44)** — 등록 도시 좌표를 Ventusky URL의 핀으로 전달하고 선택 도시의 OpenWeather 현재 수치를 지도 옆에 표시합니다.
-- **[지도 선택 상태 자동 보정](./src/views/WeatherMapView.vue#L103-L115)** — 다른 화면에서 선택 도시를 삭제하면 남은 첫 도시로 선택값을 바꾸고 현재 날씨를 다시 조회합니다.
-- **[지도 사용성 보완](./src/views/WeatherMapView.vue#L117-L160)** — iframe 지도 초기화, 크게·작게 보기, 원본 지도 새 탭 열기, 선택 도시 상세 이동을 제공합니다.
+- **[두 도시 실시간 비교](./src/views/WeatherCompareView.vue#L197-L268)** — 현재 기온, 체감온도, 습도, 풍속, 기압, 구름량과 기온 차이를 같은 기준으로 계산합니다.
+- **[비교 도시 검색·교체](./src/views/WeatherCompareView.vue#L19-L106)** — 대시보드·즐겨찾기 빠른 선택과 좌우 독립 Kakao 검색을 함께 제공하고 [두 도시 위치를 즉시 교체](./src/views/WeatherCompareView.vue#L270-L274)합니다.
+- **[자연스러운 한국어 비교 문구](./src/views/WeatherCompareView.vue#L177-L195)** — 도시 이름의 받침을 판별해 `성남시가`, `서울이`처럼 `이/가` 조사를 자동 선택합니다.
+- **[Ventusky 인터랙티브 지도](./src/views/WeatherMapView.vue#L11-L62)** — 선택 좌표와 기온·강풍 레이어를 Embed URL로 조합하고 [iframe·레이어·시간축 UI](./src/views/WeatherMapView.vue#L146-L215)로 연결합니다.
+- **[대시보드 도시 지도 핀](./src/views/WeatherMapView.vue#L33-L47)** — 등록 도시 좌표를 Ventusky URL의 핀으로 전달하고 선택 도시의 OpenWeather 현재 수치를 [지도 옆 요약 패널](./src/views/WeatherMapView.vue#L218-L260)에 표시합니다.
+- **[지도 선택 상태 자동 보정](./src/views/WeatherMapView.vue#L109-L119)** — 다른 화면에서 선택 도시를 삭제하면 남은 첫 도시로 선택값을 바꾸고 현재 날씨를 다시 조회합니다.
+- **[지도 사용성 보완](./src/views/WeatherMapView.vue#L121-L165)** — iframe 지도 초기화, 크게·작게 보기, 원본 지도 새 탭 열기, 선택 도시 상세 이동을 제공합니다.
 
 ### Router 기반 화면 흐름
 
 - **[기능별·중첩 라우트](./src/router/index.js#L3-L76)** — 탐색 아래 도시 검색·지도를 중첩하고 즐겨찾기·도시 비교 화면을 독립 경로로 추가했습니다.
 - **[URL 검색 상태 동기화](./src/views/WeatherHomeView.vue#L143-L193)** — 검색어·정렬·즐겨찾기 필터를 `?q=&sort=&favorites=`에 저장하고 새로고침·뒤로가기 시 복원합니다.
-- **[API 검색어 URL 복원](./src/views/WeatherSearchView.vue#L67-L111)** — 대한민국 도시 검색어를 `?q=`와 동기화하고 상세 화면에서 돌아오거나 새로고침하면 검색 결과를 다시 불러옵니다.
-- **[비교 상태 URL 저장](./src/views/WeatherCompareView.vue#L26-L156)** — 비교 중인 두 도시 좌표 키를 `?left=&right=`에 기록해 직접 접근·새로고침 시 선택을 복원합니다.
-- **[좌표 기반 동적 상세 경로](./src/stores/weatherStore.js#L12-L219)** — API로 새로 찾은 도시도 `lat_lon` 식별자로 상세 URL을 만들고, 검색 도시 목록을 기억해 직접 새로고침할 수 있게 했습니다.
-- **[진입 화면별 복귀](./src/views/WeatherDetailView.vue#L150-L203)** — 상세 진입 출처를 query로 추적해 대시보드·검색·즐겨찾기·지도·비교 중 알맞은 화면과 상태로 돌아갑니다.
-- **[이전·다음 도시 이동](./src/views/WeatherDetailView.vue#L115-L147)** — 같은 상세 컴포넌트에서 대시보드의 앞·뒤 도시로 이동하고 경로 변경을 감시해 API를 다시 요청합니다.
+- **[API 검색어 URL 동기화](./src/views/WeatherSearchView.vue#L81-L105)** — 대한민국 도시 검색어를 `?q=`와 양방향으로 동기화하고 상세 화면에서 돌아오거나 새로고침하면 [검색 결과를 다시 조회](./src/views/WeatherSearchView.vue#L384-L389)합니다.
+- **[비교 상태 URL 저장](./src/views/WeatherCompareView.vue#L156-L167)** — 비교 중인 두 도시 좌표 키를 `?left=&right=`에 기록하고 [초기 선택값을 query에서 복원](./src/views/WeatherCompareView.vue#L31-L44)합니다.
+- **[좌표 기반 식별자](./src/stores/weatherStore.js#L11-L14)** — API로 새로 찾은 도시도 `lat_lon` 형식의 키를 사용하고, [검색 도시를 기억·조회](./src/stores/weatherStore.js#L163-L202)해 [동적 상세 Route](./src/router/index.js#L50-L55)를 직접 새로고침할 수 있게 했습니다.
+- **[진입 화면별 복귀](./src/views/WeatherDetailView.vue#L149-L204)** — 상세 진입 출처를 query로 추적해 대시보드·검색·즐겨찾기·지도·비교 중 알맞은 화면과 상태로 돌아갑니다.
+- **[이전·다음 도시 이동](./src/views/WeatherDetailView.vue#L104-L147)** — 같은 상세 컴포넌트에서 대시보드의 앞·뒤 도시로 이동하고 경로 변경을 감시해 API를 다시 요청합니다.
 - **[문서 제목·스크롤 복원](./src/router/index.js#L77-L92)** — 라우트별 브라우저 제목, 뒤로가기 위치 복원, query만 변경될 때의 스크롤 유지를 적용했습니다.
 - **[Vercel Deep Link 새로고침](./vercel.json#L1-L9)** — 하위 경로를 직접 열거나 새로고침해도 SPA의 `index.html`로 전달되도록 Rewrite를 구성했습니다.
 
 ### 컴포넌트와 사용자 인터페이스
 
-- **[Multi-slot 공통 카드](./src/components/exercise/BaseDashboardCard.vue#L20-L44)** — Default Slot 외에 헤더 `actions`와 하단 `footer` Named Slot을 추가해 여러 화면의 카드 틀을 재사용합니다.
-- **[세분화된 Props·Emits](./src/components/exercise/WeatherCard.vue#L7-L91)** — 선택·상세·즐겨찾기·대시보드 추가·삭제 이벤트를 부모로 올리고 내부 버튼에는 `@click.stop`을 적용했습니다.
-- **[한글 IME 대응 입력](./src/components/exercise/SearchBar.vue#L4-L96)** — `v-model` 대신 `:value`·`@input`과 명시적 Emits를 사용해 조합 중인 한글도 즉시 부모 상태에 전달합니다.
+- **[Multi-slot 공통 카드](./src/components/exercise/BaseDashboardCard.vue#L23-L44)** — Default Slot 외에 헤더 `actions`와 하단 `footer` Named Slot을 추가해 여러 화면의 카드 틀을 재사용합니다.
+- **[세분화된 Props·Emits](./src/components/exercise/WeatherCard.vue#L7-L92)** — 선택·상세·즐겨찾기·대시보드 추가·삭제 이벤트를 부모로 올리고 [내부 버튼에는 `@click.stop`](./src/components/exercise/WeatherCard.vue#L95-L177)을 적용했습니다.
+- **[한글 IME 대응 입력](./src/components/exercise/SearchBar.vue#L4-L93)** — `v-model` 대신 `:value`·`@input`과 명시적 Emits를 사용해 조합 중인 한글도 즉시 부모 상태에 전달합니다.
 - **[지역 후보 표시 컴포넌트](./src/components/exercise/LocationSuggestionList.vue#L1-L82)** — 후보·로딩·오류를 Props로 받아 상태별로 렌더링하고 선택한 좌표 객체를 Emit으로 전달합니다.
 - **[검색 Composable 재사용](./src/composables/useLocationSearch.js#L29-L140)** — 후보·로딩·오류·디바운스·요청 순번 로직을 추출해 도시 검색과 비교 화면의 좌우 검색에서 공유합니다.
-- **[PrimeVue 실제 적용](./src/views/WeatherHomeView.vue#L1-L31)** — Element Plus 대신 Button, Select, ToggleSwitch, Skeleton, Toast, ConfirmDialog를 정렬·필터·로딩·알림·삭제 확인에 사용했습니다.
+- **[PrimeVue 실제 적용](./src/views/WeatherHomeView.vue#L1-L31)** — Element Plus 대신 Button, Select, ToggleSwitch, Skeleton을 [정렬·필터·로딩 UI](./src/views/WeatherHomeView.vue#L716-L805)에, Toast와 ConfirmDialog를 [알림·삭제 확인 동작](./src/views/WeatherHomeView.vue#L474-L619)에 사용했습니다.
 - **[Custom Theme Preset](./src/main.js#L14-L78)** — PrimeVue Aura를 흑백 UI 토큰에 맞게 재정의하고 자체 CSS와 동일한 라이트·다크 색상 체계로 연결했습니다.
-- **[시스템·라이트·다크 모드](./src/stores/configStore.js#L22-L80)** — VueUse로 OS 테마 감지·선택값 저장·HTML 속성 반영을 처리하고 브라우저 `theme-color`도 함께 갱신합니다.
-- **[온도 단위 설정 확장](./src/stores/configStore.js#L19-L67)** — PDF의 Pinia 단위 전환을 모든 주요 화면에 적용하고 VueUse로 재접속 후에도 선택 단위를 복원합니다.
-- **[반응형 UI와 모바일 메뉴](./src/assets/service.css#L2002-L2335)** — 대시보드·검색·상세·비교·지도 레이아웃을 태블릿·모바일에 맞게 재배치하고 경로 이동 시 메뉴를 닫습니다.
-- **[접근성 보완](./src/App.vue#L49-L105)** — 본문 바로가기, 키보드 포커스, `aria-live`·`aria-expanded`·`aria-pressed`, 자동완성 연결, 모션 감소 설정을 적용했습니다.
+- **[시스템·라이트·다크 모드](./src/stores/configStore.js#L29-L80)** — VueUse로 OS 테마 감지·선택값 저장·HTML 속성 반영을 처리하고 브라우저 `theme-color`도 함께 갱신합니다.
+- **[온도 단위 설정 확장](./src/stores/configStore.js#L22-L64)** — PDF의 Pinia 단위 전환을 공통 Store 함수로 만들고 VueUse로 재접속 후에도 선택 단위를 복원합니다.
+- **[반응형 UI와 모바일 메뉴](./src/assets/service.css#L2002-L2348)** — 대시보드·검색·상세·비교·지도 레이아웃을 태블릿·모바일에 맞게 재배치하고, [경로 이동 시 메뉴를 닫습니다](./src/App.vue#L36-L41).
+- **[접근성 보완](./src/App.vue#L49-L105)** — 본문 바로가기와 `aria-expanded`, [키보드 포커스](./src/assets/service.css#L1993-L2000), [`aria-live`](./src/views/WeatherSearchView.vue#L513-L516), [`aria-pressed`](./src/components/exercise/ThemeSwitcher.vue#L14-L24), [자동완성 속성](./src/components/exercise/SearchBar.vue#L73-L83), [모션 감소 설정](./src/assets/theme.css#L120-L129)을 적용했습니다.
 
 ### API 요청과 예외 처리
 
-- **[다중 도시 병렬 조회](./src/views/WeatherHomeView.vue#L54-L112)** — 대시보드와 즐겨찾기 각 화면에서 `Promise.allSettled()`로 여러 도시를 요청해 일부 실패 시에도 성공 카드와 실패 개수를 유지합니다.
-- **[독립 요청 병렬 처리](./src/views/WeatherDetailView.vue#L42-L94)** — 현재 날씨·예보와 [두 도시 날씨](./src/views/WeatherCompareView.vue#L107-L139)처럼 서로 의존하지 않는 요청은 `Promise.all()`로 함께 실행합니다.
-- **[Race Condition 방지](./src/composables/useLocationSearch.js#L39-L105)** — 검색 후보와 [주요 날씨 요청](./src/views/WeatherHomeView.vue#L54-L112)에 순번을 두어 늦게 도착한 과거 응답이 최신 화면을 덮어쓰지 못하게 했습니다.
-- **[로딩·오류·빈 상태](./src/views/WeatherSearchView.vue#L465-L510)** — [Skeleton](./src/components/exercise/LocationSuggestionList.vue#L43-L58), 입력 오류, 인증 오류, 빈 결과, 일부 실패, 다시 시도 상태를 화면별로 구분했습니다.
+- **[다중 도시 병렬 조회](./src/views/WeatherHomeView.vue#L71-L112)** — 대시보드와 [즐겨찾기](./src/views/WeatherFavoritesView.vue#L33-L69)에서 `Promise.allSettled()`로 여러 도시를 요청해 일부 실패 시에도 성공 카드와 실패 개수를 유지합니다.
+- **[독립 요청 병렬 처리](./src/views/WeatherDetailView.vue#L64-L80)** — 현재 날씨·예보와 [두 도시 날씨](./src/views/WeatherCompareView.vue#L107-L154)처럼 서로 의존하지 않는 요청은 `Promise.all()`로 함께 실행합니다.
+- **[Race Condition 방지](./src/composables/useLocationSearch.js#L36-L105)** — 검색 후보와 [주요 날씨 요청](./src/views/WeatherHomeView.vue#L52-L112)에 순번을 두어 늦게 도착한 과거 응답이 최신 화면을 덮어쓰지 못하게 했습니다.
+- **[입력·로딩·오류·빈 상태](./src/views/WeatherSearchView.vue#L416-L510)** — [Skeleton](./src/components/exercise/LocationSuggestionList.vue#L43-L60), 입력 오류, [인증 오류](./src/views/WeatherSearchView.vue#L198-L207), 빈 결과, 다시 시도를 구분하고, 다중 조회에서는 [일부 실패 결과](./src/views/WeatherHomeView.vue#L95-L105)도 유지합니다.
 - **[공통 요청 제한 시간](./src/api/weatherApi.js#L1-L15)** — Axios 인스턴스에 5초 timeout을 설정해 응답이 없는 요청 때문에 로딩 상태가 계속되지 않도록 했습니다.
-- **[API 키 환경 변수 분리](./src/api/weatherApi.js#L15-L49)** — OpenWeather·[Kakao](./src/api/locationApi.js#L1-L10) 키는 Git에서 제외되는 `.env.local`에 두고 요청 시 `import.meta.env`로 읽습니다.
-- **[현재 위치용 로컬 HTTPS](./vite.config.js#L1-L15)** — Browser Geolocation을 로컬에서도 확인할 수 있도록 Vite Basic SSL 개발 환경을 구성했습니다.
+- **[API 키 환경 변수 분리](./src/api/weatherApi.js#L16-L49)** — OpenWeather·[Kakao](./src/api/locationApi.js#L3-L9) 키는 [Git에서 제외되는 `*.local`](./.gitignore#L10-L18)에 두고 요청 시 `import.meta.env`로 읽습니다.
+- **[현재 위치용 로컬 HTTPS](./vite.config.js#L1-L16)** — Browser Geolocation을 로컬에서도 확인할 수 있도록 Vite Basic SSL 개발 환경을 구성했습니다.
 
 ## 사용 라이브러리
 
@@ -169,9 +169,9 @@ flowchart LR
 
 ### 검색과 Composition API
 
-- [한글 초성·자모·다중 검색과 대시보드 통계](./src/views/WeatherHomeView.vue#L195-L426)
-- [검색 상태와 URL query 양방향 동기화](./src/views/WeatherHomeView.vue#L145-L193)
-- [24시간 예보와 현지 날짜 기준 5일 요약](./src/views/WeatherDetailView.vue#L233-L349)
+- [한글 초성·자모·다중 검색과 대시보드 통계](./src/views/WeatherHomeView.vue#L195-L400)
+- [검색 상태와 URL query 양방향 동기화](./src/views/WeatherHomeView.vue#L143-L193)
+- [24시간 예보와 현지 날짜 기준 5일 요약](./src/views/WeatherDetailView.vue#L233-L341)
 - [한국어 조사와 도시 비교 결과 계산](./src/views/WeatherCompareView.vue#L177-L268)
 
 ### 컴포넌트 설계
@@ -185,9 +185,9 @@ flowchart LR
 
 - [중첩·동적·추가 라우트와 화면 복원](./src/router/index.js#L3-L92)
 - [Vercel SPA Deep Link 새로고침 Rewrite](./vercel.json#L1-L9)
-- [좌표 기반 도시·즐겨찾기 State와 Action](./src/stores/weatherStore.js#L140-L261)
+- [도시·즐겨찾기 State·Action·자동 저장](./src/stores/weatherStore.js#L140-L261)
 - [VueUse 온도 단위·시스템 테마 상태](./src/stores/configStore.js#L19-L91)
-- [상세 페이지 복귀 경로와 이전·다음 도시](./src/views/WeatherDetailView.vue#L115-L203)
+- [상세 페이지 복귀 경로와 이전·다음 도시](./src/views/WeatherDetailView.vue#L104-L204)
 
 ### API와 사용자 피드백
 
@@ -195,7 +195,7 @@ flowchart LR
 - [Kakao Local 주소 검색](./src/api/locationApi.js#L1-L20)
 - [현재 위치 기반 날씨 검색](./src/views/WeatherSearchView.vue#L250-L334)
 - [생활 날씨 안내 규칙](./src/utils/weatherWarnings.js#L1-L76)
-- [Ventusky 좌표·레이어·도시 핀 URL](./src/views/WeatherMapView.vue#L29-L109)
+- [Ventusky 좌표·레이어·도시 핀 URL](./src/views/WeatherMapView.vue#L29-L62)
 
 ## 장별 상세 구현
 
@@ -251,7 +251,7 @@ flowchart LR
 
 파생값은 `computed`, API 호출·저장·라우팅처럼 상태 변경 뒤 실행해야 하는 동작은 `watch`로 구분했습니다.
 
-**코드 확인:** [한글 자모·다중 검색](./src/views/WeatherHomeView.vue#L195-L379) · [대시보드 한눈에 보기](./src/views/WeatherHomeView.vue#L381-L426) · [24시간·5일 예보 계산](./src/views/WeatherDetailView.vue#L233-L349) · [watch 활용](./src/views/WeatherSearchView.vue#L81-L131)
+**코드 확인:** [한글 자모·다중 검색](./src/views/WeatherHomeView.vue#L195-L379) · [대시보드 요약 계산](./src/views/WeatherHomeView.vue#L381-L400) · [한눈에 보기 UI](./src/views/WeatherHomeView.vue#L684-L710) · [24시간·5일 예보 계산](./src/views/WeatherDetailView.vue#L233-L341) · [watch 활용](./src/views/WeatherSearchView.vue#L81-L131)
 
 </details>
 
@@ -305,7 +305,7 @@ flowchart LR
 - 대시보드 도시의 이전·다음 상세 페이지 이동, 경로별 문서 제목, 스크롤 위치 복원을 추가했습니다.
 - Vercel에서 하위 경로를 직접 열거나 새로고침해도 `index.html`로 연결되도록 SPA Rewrite를 추가했습니다.
 
-**코드 확인:** [중첩·동적·추가 라우트](./src/router/index.js#L3-L76) · [스크롤·문서 제목](./src/router/index.js#L77-L92) · [상세 복귀 경로 계산](./src/views/WeatherDetailView.vue#L115-L202)
+**코드 확인:** [중첩·동적·추가 라우트](./src/router/index.js#L3-L76) · [스크롤·문서 제목](./src/router/index.js#L77-L92) · [상세 복귀 경로 계산](./src/views/WeatherDetailView.vue#L149-L204)
 
 </details>
 
@@ -332,7 +332,7 @@ flowchart LR
 <details>
 <summary><strong>7장 · Axios와 외부 데이터 — 지역 후보부터 실시간 예보까지</strong></summary>
 
-Mock Data는 기본 도시의 대표 좌표에만 사용하고, 화면에 표시되는 날씨는 실제 API 응답으로 교체했습니다.
+Mock Data는 기본 도시의 이름·행정구역·대표 좌표 초기값에만 사용하고, 화면에 표시되는 날씨는 실제 API 응답으로 교체했습니다.
 
 ```text
 카카오 지역명 검색 → 대한민국 행정구역 후보와 좌표 선택
@@ -350,7 +350,7 @@ Mock Data는 기본 도시의 대표 좌표에만 사용하고, 화면에 표시
 - 상세 화면에서 24시간 예보, 5일 요약, 강수·기온·바람 기준 생활 참고 안내를 제공합니다. 생활 참고 문구는 앱에서 계산한 값이며 공식 기상 특보가 아님을 명시했습니다.
 - 날씨 지도는 Ventusky의 좌표·레이어 기반 Embed를 사용하고, 선택 도시의 현재 수치는 OpenWeather에서 별도로 조회합니다.
 
-**코드 확인:** [OpenWeather 요청](./src/api/weatherApi.js#L1-L51) · [Kakao 요청](./src/api/locationApi.js#L1-L20) · [후보 중복·오래된 응답 처리](./src/composables/useLocationSearch.js#L29-L105) · [현재 위치 검색](./src/views/WeatherSearchView.vue#L250-L334) · [Ventusky 좌표 URL](./src/views/WeatherMapView.vue#L29-L109)
+**코드 확인:** [OpenWeather 요청](./src/api/weatherApi.js#L1-L51) · [Kakao 요청](./src/api/locationApi.js#L1-L20) · [후보 중복·오래된 응답 처리](./src/composables/useLocationSearch.js#L29-L105) · [현재 위치 검색](./src/views/WeatherSearchView.vue#L250-L334) · [Ventusky 좌표 URL](./src/views/WeatherMapView.vue#L29-L62)
 
 </details>
 
