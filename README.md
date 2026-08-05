@@ -2,45 +2,129 @@
 
 **한국어 위치 검색 → 실시간 날씨 조회 → 도시 상태 관리** 흐름으로 확장한 날씨 대시보드입니다. Vue 3 수업의 단계별 실습(Directive → Composition API → Component → Vue Router → Pinia → Axios → UI Library)을 하나의 앱으로 연결했습니다.
 
-PrimeVue와 VueUse를 활용해 검색·비교·즐겨찾기·지도·테마 기능을 구현했습니다.
+> **README 작성 기준** · PDF의 기본 실습 요구사항만 수행한 항목은 제외하고, 최종 `App.vue`에 실제로 연결된 **추가·변경 구현 전체**를 정리했습니다.
 
 [![실행 데모](https://img.shields.io/badge/실행_데모-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://skala-vue-olive.vercel.app)
-[![실습 대비 확장](https://img.shields.io/badge/실습_대비_확장-334155?style=for-the-badge)](#실습-대비-확장-포인트)
+[![실습 외 전체 기능](https://img.shields.io/badge/실습_외_전체_기능-334155?style=for-the-badge)](#실습-외-구현-기능-전체)
 [![코드 근거](https://img.shields.io/badge/코드_근거-334155?style=for-the-badge)](#코드-근거-바로가기)
 [![실행 방법](https://img.shields.io/badge/실행_방법-334155?style=for-the-badge)](#실행-방법)
 
-[![SKALA Weather 대시보드](./docs/images/dashboard-overview.png)](./docs/images/dashboard-overview.png)
+## 실습 외 구현 기능 전체
 
-_Evidence 01 · Pinia에 등록된 도시 상태와 OpenWeather의 실제 날씨를 결합한 메인 대시보드_
+기능명을 누르면 해당 구현 코드로 바로 이동합니다.
 
-## 핵심 요약
+**빠른 이동** · [검색·위치](#검색과-위치-탐색) · [대시보드·상태](#대시보드와-전역-상태) · [상세·예보](#상세-날씨와-데이터-가공) · [비교·지도](#도시-비교와-날씨-지도) · [Router](#router-기반-화면-흐름) · [컴포넌트·UI](#컴포넌트와-사용자-인터페이스) · [API·예외 처리](#api-요청과-예외-처리)
 
-|                        |                                                 |
-| ---------------------- | ----------------------------------------------- |
-| **한국어 검색 UX**     | 초성·자모·다중 도시 검색 (`ㅅㅓㅇㅜㄹ` → 서울)  |
-| **반응형 데이터 계산** | 통계·예보·비교를 `computed`로 실시간 계산       |
-| **상태와 화면 흐름**   | Pinia 전역 상태 + Router query로 화면 복원      |
-| **실제 위치 데이터**   | Kakao Local·Geolocation 좌표 → OpenWeather 연동 |
-| **서비스형 UX**        | 즐겨찾기·도시 비교·날씨 지도·라이트·다크 모드   |
+### 검색과 위치 탐색
 
-> **검색 흐름 분리:** 내 도시 검색은 이미 받은 데이터를 `computed`로 즉시 필터링하고, 대한민국 도시 검색은 완성된 지역명을 Kakao Local에서 조회한 뒤 사용자가 선택한 좌표로 OpenWeather를 호출합니다.
+- **[초성·혼합 자모 검색](./src/views/WeatherHomeView.vue#L195-L353)** — `ㅅ`, `ㅅㅇ`, `서ㅇ`, `서우`, `ㅅㅓㅇㅜㄹ` 입력을 모두 `서울`과 일치시키는 한글 분해·접두 검색을 구현했습니다.
+- **[쉼표 다중 검색](./src/views/WeatherHomeView.vue#L334-L355)** — `서울, 부산`처럼 여러 검색어를 나눠 등록 도시를 한 번에 필터링합니다.
+- **[검색 흐름 분리](./src/views/WeatherHomeView.vue#L342-L378)** — 내 도시는 이미 받은 데이터를 `computed`로 즉시 검색하고, 전국 검색만 외부 API를 호출하도록 역할을 나눴습니다.
+- **[대한민국 행정구역 자동완성](./src/composables/useLocationSearch.js#L9-L105)** — 완성된 한글 두 글자 이상을 Kakao Local에서 조회하고, 행정구역만 남긴 뒤 같은 좌표의 후보를 제거합니다.
+- **[정확한 좌표 선택 검색](./src/views/WeatherSearchView.vue#L143-L244)** — 여러 후보는 사용자가 선택하고, 정확히 일치하거나 후보가 한 곳일 때만 Enter·검색 버튼으로 바로 날씨를 조회합니다.
+- **[검색 디바운스](./src/composables/useLocationSearch.js#L93-L127)** — 입력이 멈춘 뒤 400ms 후 후보를 조회해 타이핑 중 불필요한 API 호출을 줄였습니다.
+- **[최근 검색 기록 분리](./src/utils/weatherStorage.js#L1-L39)** — 대시보드 필터 검색과 API 지역 검색을 목적별 목록으로 나눠 각각 최대 5개까지 저장·재사용·삭제합니다.
+- **[현재 위치 날씨](./src/views/WeatherSearchView.vue#L246-L334)** — 사용자가 버튼을 누른 경우에만 위치 권한을 요청하고, 좌표 → 역지오코딩 → 대한민국 도시 날씨 순서로 연결합니다.
+- **[검색 결과 상태 계산](./src/views/WeatherSearchView.vue#L47-L60)** — 결과 수와 대시보드·즐겨찾기 등록 수를 `computed`로 집계하고, 결과 카드에서 추가·즐겨찾기·상세 이동을 제공합니다.
 
-## 실습 대비 확장 포인트
+### 대시보드와 전역 상태
 
-| PDF 학습 영역             | 기본 실습 중심             | 이번 프로젝트의 심화·추가 구현                                                 |
-| ------------------------- | -------------------------- | ------------------------------------------------------------------------------ |
-| **1장 · 개발 환경**       | Vite 프로젝트 구성         | `views`·`stores`·`api`·`composables`·`utils`로 역할 분리, API 키 환경 변수화   |
-| **2장 · Directive**       | 목록·조건·입력·이벤트 처리 | 한글 IME 대응 입력, API 상태별 렌더링, 날씨 Tone 클래스, 카드 이벤트 충돌 방지 |
-| **3장 · Composition API** | `ref`·`computed`·`watch`   | 자모·다중 검색, 통계·예보·비교 계산, URL·API·저장소·테마 동기화                |
-| **4장 · Component**       | Props·Emits·Slot           | Default·`actions`·`footer` Slot, 세분화된 이벤트, 검색 Composable 재사용       |
-| **5장 · Vue Router**      | 홈·상세·Not Found          | 중첩 탐색, 비교·즐겨찾기·지도, 좌표 기반 동적 경로, 복귀 경로·스크롤 복원      |
-| **6장 · Pinia**           | 온도 단위 전역 상태        | 대시보드·즐겨찾기·검색 도시·테마 공유, 좌표 키와 LocalStorage 지속성           |
-| **7장 · Axios**           | 단일 날씨 API 호출         | Kakao·OpenWeather 다중 API, 현재 위치, 병렬 요청, 오류·Race Condition 처리     |
-| **8장 · UI Library**      | Element Plus 활용          | PrimeVue Custom Preset과 VueUse 기반 Toast·Dialog·Skeleton·테마·디바운스 적용  |
+- **[기본 대표 도시 5곳](./src/data/weatherMock.js#L1-L120)** — Mock Data는 대표 좌표로만 사용하고, 화면의 기온·습도·바람은 OpenWeather의 실제 응답으로 교체했습니다.
+- **[사용자 대시보드 관리](./src/stores/weatherStore.js#L193-L235)** — 검색 도시 추가, 카드 삭제, 기본 도시 복원, 전체 날씨 새로고침을 제공하고 확인창·알림으로 결과를 안내합니다.
+- **[다중 기준 정렬](./src/views/WeatherHomeView.vue#L124-L378)** — 등록순, 기온 높은 순·낮은 순, 습도 높은 순, 한글 도시 이름순으로 카드를 정렬합니다.
+- **[즐겨찾기 필터](./src/views/WeatherHomeView.vue#L357-L378)** — 검색 결과에 즐겨찾기 조건을 추가로 적용하고 선택 상태를 URL에도 보존합니다.
+- **[한눈에 보기](./src/views/WeatherHomeView.vue#L381-L425)** — 등록 도시 수, 현재 평균 기온, 가장 더운 도시, 즐겨찾기 수를 반응형 파생값으로 계산합니다.
+- **[대표 도시와 갱신 시각](./src/views/WeatherHomeView.vue#L402-L425)** — 첫 번째 등록 도시를 대표 날씨로 표시하고 API 요청이 성공한 마지막 갱신 시각을 보여줍니다.
+- **[즐겨찾기 전용 페이지](./src/views/WeatherFavoritesView.vue#L1-L190)** — 저장 도시의 실제 현재 날씨를 다시 조회하고, 도시 수와 평균 기온을 `computed`로 계산합니다.
+- **[좌표 기반 도시 식별](./src/stores/weatherStore.js#L12-L115)** — 위·경도를 공통 키로 사용해 공급자별 도시명 차이를 흡수하고 기본 도시 좌표 정규화와 중복 방지를 처리합니다.
+- **[`computed Set` 등록 여부 계산](./src/stores/weatherStore.js#L168-L187)** — 대시보드·즐겨찾기 좌표 키를 `Set`으로 파생해 여러 카드와 검색 결과에서 포함 여부를 반복 확인합니다.
+- **[브라우저 상태 복원](./src/stores/weatherStore.js#L140-L261)** — 대시보드·즐겨찾기·검색 도시를 저장해 새로고침 후 복원하고, 이전 숫자 ID 즐겨찾기도 좌표 기반 구조로 마이그레이션합니다.
+
+### 상세 날씨와 데이터 가공
+
+- **[상세 기상 관측](./src/views/WeatherDetailView.vue#L207-L487)** — 현재·체감·최저·최고 기온, 습도, 기압, 풍속·풍향, 구름량, 가시거리, 강수·적설을 한 화면에 표시합니다.
+- **[날씨 코드 한국어 표준화](./src/utils/weatherDisplay.js#L1-L109)** — OpenWeather Condition ID를 기준으로 날씨 문구·이모지·시각 Tone을 일관되게 변환합니다.
+- **[3단계 온도 상태 문구](./src/components/exercise/WeatherCard.vue#L55-L69)** — 기본 2단계 조건을 `매우 더움 / 포근함 / 서늘함` 세 단계로 확장했습니다.
+- **[앞으로 24시간 예보](./src/views/WeatherDetailView.vue#L233-L291)** — 3시간 간격 예보 8개를 선택 가능한 카드로 표시하고 도시 현지 시간대를 반영합니다.
+- **[선택 시간대 상세·요약](./src/views/WeatherDetailView.vue#L257-L291)** — 24시간 최고 기온·최대 강수 확률과 선택 시각의 체감·습도·풍속·3시간 강수량을 계산합니다.
+- **[현지 날짜 기준 5일 요약](./src/views/WeatherDetailView.vue#L293-L341)** — 40개 예보를 도시 날짜별로 묶어 최저·최고 기온, 최대 강수 확률, 정오에 가까운 대표 날씨를 계산합니다.
+- **[생활 날씨 안내](./src/utils/weatherWarnings.js#L1-L76)** — 현재·24시간 예보의 폭염, 한파, 강수, 강풍, 뇌우, 눈 조건을 계산해 생활 참고 문구를 제공합니다.
+
+### 도시 비교와 날씨 지도
+
+- **[두 도시 실시간 비교](./src/views/WeatherCompareView.vue#L177-L268)** — 현재 기온, 체감온도, 습도, 풍속, 기압, 구름량과 기온 차이를 같은 기준으로 계산합니다.
+- **[비교 도시 검색·교체](./src/views/WeatherCompareView.vue#L26-L106)** — 대시보드·즐겨찾기 빠른 선택과 좌우 독립 Kakao 검색을 함께 제공하고 두 도시 위치를 즉시 맞바꿉니다.
+- **[자연스러운 한국어 비교 문구](./src/views/WeatherCompareView.vue#L177-L199)** — 도시 이름의 받침을 판별해 `성남시가`, `서울이`처럼 `이/가` 조사를 자동 선택합니다.
+- **[Ventusky 인터랙티브 지도](./src/views/WeatherMapView.vue#L9-L61)** — 선택 좌표를 중심으로 기온·강풍 레이어와 시간축을 확인할 수 있는 지도를 Embed로 연결합니다.
+- **[대시보드 도시 지도 핀](./src/views/WeatherMapView.vue#L29-L44)** — 등록 도시 좌표를 Ventusky URL의 핀으로 전달하고 선택 도시의 OpenWeather 현재 수치를 지도 옆에 표시합니다.
+- **[지도 선택 상태 자동 보정](./src/views/WeatherMapView.vue#L103-L115)** — 다른 화면에서 선택 도시를 삭제하면 남은 첫 도시로 선택값을 바꾸고 현재 날씨를 다시 조회합니다.
+- **[지도 사용성 보완](./src/views/WeatherMapView.vue#L117-L160)** — iframe 지도 초기화, 크게·작게 보기, 원본 지도 새 탭 열기, 선택 도시 상세 이동을 제공합니다.
+
+### Router 기반 화면 흐름
+
+- **[기능별·중첩 라우트](./src/router/index.js#L3-L76)** — 탐색 아래 도시 검색·지도를 중첩하고 즐겨찾기·도시 비교 화면을 독립 경로로 추가했습니다.
+- **[URL 검색 상태 동기화](./src/views/WeatherHomeView.vue#L143-L193)** — 검색어·정렬·즐겨찾기 필터를 `?q=&sort=&favorites=`에 저장하고 새로고침·뒤로가기 시 복원합니다.
+- **[API 검색어 URL 복원](./src/views/WeatherSearchView.vue#L67-L111)** — 대한민국 도시 검색어를 `?q=`와 동기화하고 상세 화면에서 돌아오거나 새로고침하면 검색 결과를 다시 불러옵니다.
+- **[비교 상태 URL 저장](./src/views/WeatherCompareView.vue#L26-L156)** — 비교 중인 두 도시 좌표 키를 `?left=&right=`에 기록해 직접 접근·새로고침 시 선택을 복원합니다.
+- **[좌표 기반 동적 상세 경로](./src/stores/weatherStore.js#L12-L219)** — API로 새로 찾은 도시도 `lat_lon` 식별자로 상세 URL을 만들고, 검색 도시 목록을 기억해 직접 새로고침할 수 있게 했습니다.
+- **[진입 화면별 복귀](./src/views/WeatherDetailView.vue#L150-L203)** — 상세 진입 출처를 query로 추적해 대시보드·검색·즐겨찾기·지도·비교 중 알맞은 화면과 상태로 돌아갑니다.
+- **[이전·다음 도시 이동](./src/views/WeatherDetailView.vue#L115-L147)** — 같은 상세 컴포넌트에서 대시보드의 앞·뒤 도시로 이동하고 경로 변경을 감시해 API를 다시 요청합니다.
+- **[문서 제목·스크롤 복원](./src/router/index.js#L77-L92)** — 라우트별 브라우저 제목, 뒤로가기 위치 복원, query만 변경될 때의 스크롤 유지를 적용했습니다.
+- **[Vercel Deep Link 새로고침](./vercel.json#L1-L9)** — 하위 경로를 직접 열거나 새로고침해도 SPA의 `index.html`로 전달되도록 Rewrite를 구성했습니다.
+
+### 컴포넌트와 사용자 인터페이스
+
+- **[Multi-slot 공통 카드](./src/components/exercise/BaseDashboardCard.vue#L20-L44)** — Default Slot 외에 헤더 `actions`와 하단 `footer` Named Slot을 추가해 여러 화면의 카드 틀을 재사용합니다.
+- **[세분화된 Props·Emits](./src/components/exercise/WeatherCard.vue#L7-L91)** — 선택·상세·즐겨찾기·대시보드 추가·삭제 이벤트를 부모로 올리고 내부 버튼에는 `@click.stop`을 적용했습니다.
+- **[한글 IME 대응 입력](./src/components/exercise/SearchBar.vue#L4-L96)** — `v-model` 대신 `:value`·`@input`과 명시적 Emits를 사용해 조합 중인 한글도 즉시 부모 상태에 전달합니다.
+- **[지역 후보 표시 컴포넌트](./src/components/exercise/LocationSuggestionList.vue#L1-L82)** — 후보·로딩·오류를 Props로 받아 상태별로 렌더링하고 선택한 좌표 객체를 Emit으로 전달합니다.
+- **[검색 Composable 재사용](./src/composables/useLocationSearch.js#L29-L140)** — 후보·로딩·오류·디바운스·요청 순번 로직을 추출해 도시 검색과 비교 화면의 좌우 검색에서 공유합니다.
+- **[PrimeVue 실제 적용](./src/views/WeatherHomeView.vue#L1-L31)** — Element Plus 대신 Button, Select, ToggleSwitch, Skeleton, Toast, ConfirmDialog를 정렬·필터·로딩·알림·삭제 확인에 사용했습니다.
+- **[Custom Theme Preset](./src/main.js#L14-L78)** — PrimeVue Aura를 흑백 UI 토큰에 맞게 재정의하고 자체 CSS와 동일한 라이트·다크 색상 체계로 연결했습니다.
+- **[시스템·라이트·다크 모드](./src/stores/configStore.js#L22-L80)** — VueUse로 OS 테마 감지·선택값 저장·HTML 속성 반영을 처리하고 브라우저 `theme-color`도 함께 갱신합니다.
+- **[온도 단위 설정 확장](./src/stores/configStore.js#L19-L67)** — PDF의 Pinia 단위 전환을 모든 주요 화면에 적용하고 VueUse로 재접속 후에도 선택 단위를 복원합니다.
+- **[반응형 UI와 모바일 메뉴](./src/assets/service.css#L2002-L2335)** — 대시보드·검색·상세·비교·지도 레이아웃을 태블릿·모바일에 맞게 재배치하고 경로 이동 시 메뉴를 닫습니다.
+- **[접근성 보완](./src/App.vue#L49-L105)** — 본문 바로가기, 키보드 포커스, `aria-live`·`aria-expanded`·`aria-pressed`, 자동완성 연결, 모션 감소 설정을 적용했습니다.
+
+### API 요청과 예외 처리
+
+- **[다중 도시 병렬 조회](./src/views/WeatherHomeView.vue#L54-L112)** — 대시보드와 즐겨찾기 각 화면에서 `Promise.allSettled()`로 여러 도시를 요청해 일부 실패 시에도 성공 카드와 실패 개수를 유지합니다.
+- **[독립 요청 병렬 처리](./src/views/WeatherDetailView.vue#L42-L94)** — 현재 날씨·예보와 [두 도시 날씨](./src/views/WeatherCompareView.vue#L107-L139)처럼 서로 의존하지 않는 요청은 `Promise.all()`로 함께 실행합니다.
+- **[Race Condition 방지](./src/composables/useLocationSearch.js#L39-L105)** — 검색 후보와 [주요 날씨 요청](./src/views/WeatherHomeView.vue#L54-L112)에 순번을 두어 늦게 도착한 과거 응답이 최신 화면을 덮어쓰지 못하게 했습니다.
+- **[로딩·오류·빈 상태](./src/views/WeatherSearchView.vue#L465-L510)** — [Skeleton](./src/components/exercise/LocationSuggestionList.vue#L43-L58), 입력 오류, 인증 오류, 빈 결과, 일부 실패, 다시 시도 상태를 화면별로 구분했습니다.
+- **[공통 요청 제한 시간](./src/api/weatherApi.js#L1-L15)** — Axios 인스턴스에 5초 timeout을 설정해 응답이 없는 요청 때문에 로딩 상태가 계속되지 않도록 했습니다.
+- **[API 키 환경 변수 분리](./src/api/weatherApi.js#L15-L49)** — OpenWeather·[Kakao](./src/api/locationApi.js#L1-L10) 키는 Git에서 제외되는 `.env.local`에 두고 요청 시 `import.meta.env`로 읽습니다.
+- **[현재 위치용 로컬 HTTPS](./vite.config.js#L1-L15)** — Browser Geolocation을 로컬에서도 확인할 수 있도록 Vite Basic SSL 개발 환경을 구성했습니다.
+
+## 사용 라이브러리
+
+- **Vue 3** — Composition API와 컴포넌트 기반 화면 구성
+- **Vue Router** — 중첩·동적 라우팅, URL query 상태, 문서 제목과 스크롤 제어
+- **Pinia** — 도시·즐겨찾기·온도 단위·테마 전역 상태 관리
+- **Axios** — OpenWeather·Kakao REST API 인스턴스와 timeout 구성
+- **PrimeVue · `@primeuix/themes`** — 공통 UI 컴포넌트와 Aura 기반 Custom Preset
+- **VueUse** — `useColorMode`, `useLocalStorage`, `useDebounceFn` 활용
+- **Vite · Basic SSL** — 개발·빌드 환경과 현재 위치 테스트용 로컬 HTTPS
+
+## 외부 API 및 서비스
+
+- **OpenWeather Current Weather Data 2.5** — 좌표 기반 현재 기온·습도·바람·기압·구름·가시거리 조회
+- **OpenWeather 5 Day / 3 Hour Forecast 2.5** — 3시간 간격 40개 예보를 24시간·5일 정보로 가공
+- **OpenWeather Reverse Geocoding 1.0** — 브라우저 현재 좌표를 도시명으로 변환
+- **Kakao Local 주소 검색** — 대한민국 행정구역 후보와 위·경도 조회
+- **Browser Geolocation API** — 사용자 동의 후 현재 위·경도 확인
+- **Ventusky Embed** — 기온·강풍 흐름, 시간축, 도시 핀을 제공하는 외부 날씨 지도
+- **Vercel** — 정적 배포와 SPA 하위 경로 Rewrite 적용
 
 ## 화면으로 확인하는 구현
 
-상단 대표 화면을 포함한 세 장의 이미지는 실제 외부 API를 호출한 실행 결과입니다. 이미지를 누르면 원본 크기로 확인할 수 있습니다.
+세 장의 이미지는 실제 외부 API를 호출한 실행 결과입니다. 이미지를 누르면 원본 크기로 확인할 수 있습니다.
+
+### Evidence 01 · Pinia 도시 상태 + OpenWeather 실시간 대시보드
+
+[![SKALA Weather 대시보드](./docs/images/dashboard-overview.png)](./docs/images/dashboard-overview.png)
+
+기본 대표 도시와 사용자가 추가한 도시를 Pinia에서 관리하고, 각 좌표의 실제 현재 날씨를 OpenWeather에서 조회합니다.
 
 ### Evidence 02 · Kakao 지역 후보 → 좌표 기반 날씨 조회
 
@@ -54,18 +138,14 @@ _Evidence 01 · Pinia에 등록된 도시 상태와 OpenWeather의 실제 날씨
 
 도시의 `timezone`을 반영해 예보를 현지 날짜별로 묶고, 일별 최저·최고 기온과 최대 강수 확률, 정오에 가까운 대표 날씨를 계산합니다.
 
-## 학습 개념과 설계 연결
+## 배운 개념을 적용한 기준
 
-| 학습 개념                   | 적용 기준                                      | 구현 결과                                                                        |
-| --------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
-| **Directive**               | 화면 상태와 사용자 동작을 템플릿에서 표현      | 로딩·오류·빈 결과·정상 결과 분기, API 목록 반복, 동적 클래스와 이벤트 수식어     |
-| **`computed`**              | 기존 상태에서 계산할 수 있는 파생값            | 한글 검색, 필터·정렬, 통계, 예보 요약, 비교 문구가 원본 변경에 따라 자동 갱신    |
-| **`watch` / `watchEffect`** | 상태 변경 이후 필요한 부수 효과                | API 재호출, URL query 복원, LocalStorage 저장, 테마 메타 색상과 수업 로그 동기화 |
-| **Slot / Props / Emits**    | 레이아웃과 상태 책임을 분리                    | 공통 카드 레이아웃을 재사용하고 자식은 입력·동작만 부모에게 전달                 |
-| **Composable**              | 두 화면에서 반복되는 상태와 비동기 흐름 분리   | 도시 검색과 도시 비교가 Kakao 후보·디바운스·오래된 응답 방지 로직 공유           |
-| **Vue Router / Pinia**      | URL이 필요한 화면 상태와 앱 전역 상태를 구분   | 탐색·상세·비교·즐겨찾기 경로와 도시·단위·테마 상태를 독립적으로 관리             |
-| **Axios / 외부 API**        | 위치와 날씨 공급자를 좌표로 연결               | Kakao·Geolocation의 좌표를 OpenWeather 현재 날씨·예보 요청에 공통 사용           |
-| **PrimeVue / VueUse**       | 반복 UI와 브라우저 기능을 검증된 생태계로 보완 | 사용자 피드백·삭제 확인·로딩·테마·저장·디바운스를 기존 디자인과 통합             |
+- **`computed`**는 원본 상태로부터 다시 계산할 수 있는 검색 결과·통계·예보·비교에 사용했습니다.
+- **`watch`와 `watchEffect`**는 API 호출·URL 변경·브라우저 저장처럼 상태 변경 이후 실행할 동작에 사용했습니다.
+- **Props·Emits·Slot**은 View가 상태를 관리하고 자식 컴포넌트가 표시와 사용자 이벤트를 담당하도록 역할을 나누는 데 사용했습니다.
+- **Composable**은 도시 검색과 도시 비교에서 반복되는 Kakao 후보·디바운스·요청 순번 로직을 공유하는 데 사용했습니다.
+- **Vue Router와 Pinia**는 URL로 복원할 화면 상태와 여러 라우트에서 공유할 앱 상태를 구분하는 데 사용했습니다.
+- **Axios·PrimeVue·VueUse**는 실제 외부 데이터, 사용자 피드백, 브라우저 저장·테마 같은 서비스 동작을 구현하는 데 사용했습니다.
 
 ## 데이터 흐름
 
@@ -104,6 +184,7 @@ flowchart LR
 ### Router와 전역 상태
 
 - [중첩·동적·추가 라우트와 화면 복원](./src/router/index.js#L3-L92)
+- [Vercel SPA Deep Link 새로고침 Rewrite](./vercel.json#L1-L9)
 - [좌표 기반 도시·즐겨찾기 State와 Action](./src/stores/weatherStore.js#L140-L261)
 - [VueUse 온도 단위·시스템 테마 상태](./src/stores/configStore.js#L19-L91)
 - [상세 페이지 복귀 경로와 이전·다음 도시](./src/views/WeatherDetailView.vue#L115-L203)
@@ -123,7 +204,7 @@ flowchart LR
 
 - 화면 단위는 `views`, 재사용 UI는 `components/exercise`, 전역 상태는 `stores`로 분리했습니다.
 - 외부 요청은 `api`, 반복되는 지역 검색 흐름은 `composables`, 표시·저장·생활 안내 규칙은 `utils`에 배치했습니다.
-- OpenWeather와 Kakao 키는 Vite 환경 변수로 분리해 실제 값이 저장소에 포함되지 않도록 구성했습니다.
+- OpenWeather와 Kakao 키는 Git에서 제외되는 `.env.local`의 Vite 환경 변수로 분리했습니다.
 - 앱에서 사용하지 않는 이전 실습 파일은 보존하되, 최종 제출 흐름은 `App.vue`와 연결된 코드만 사용합니다.
 
 </details>
@@ -154,7 +235,7 @@ flowchart LR
 - 쉼표로 검색어를 나눠 `서울, 부산`처럼 여러 도시를 한 번에 찾습니다.
 - 검색 결과 → 즐겨찾기만 보기 → 기온·습도·이름 정렬 순서로 파생 목록을 계산합니다.
 - **한눈에 보기**에서 등록 도시 수, 평균 기온, 가장 더운 도시, 즐겨찾기 수를 계산합니다.
-- 검색 결과와 즐겨찾기 페이지의 개수·평균 기온, 두 도시의 기온·습도·풍속·기압 비교표도 자동으로 다시 계산합니다.
+- 검색 결과의 등록 상태, 즐겨찾기 페이지의 도시 수·평균 기온, 두 도시의 기온·습도·풍속·기압 비교표도 자동으로 다시 계산합니다.
 - OpenWeather의 3시간 간격 예보 40개를 도시의 현지 날짜별로 묶고, 일별 최저·최고 기온과 최대 강수 확률을 계산해 5일 요약으로 가공합니다.
 - 도시 비교 문구에서는 마지막 글자의 종성을 계산해 `이/가` 조사를 자연스럽게 선택합니다.
 - 상세 진입 출처를 계산해 검색·즐겨찾기·지도·비교 화면에 맞는 복귀 경로와 버튼 문구를 만듭니다.
@@ -222,6 +303,7 @@ flowchart LR
 - 검색어·정렬·즐겨찾기 필터와 비교할 두 도시를 URL query에 저장했습니다.
 - 상세 화면은 진입한 화면에 따라 검색·지도·비교·즐겨찾기로 돌아갈 경로를 계산합니다.
 - 대시보드 도시의 이전·다음 상세 페이지 이동, 경로별 문서 제목, 스크롤 위치 복원을 추가했습니다.
+- Vercel에서 하위 경로를 직접 열거나 새로고침해도 `index.html`로 연결되도록 SPA Rewrite를 추가했습니다.
 
 **코드 확인:** [중첩·동적·추가 라우트](./src/router/index.js#L3-L76) · [스크롤·문서 제목](./src/router/index.js#L77-L92) · [상세 복귀 경로 계산](./src/views/WeatherDetailView.vue#L115-L202)
 
@@ -319,16 +401,9 @@ PrimeVue와 함께 **VueUse**도 적용했습니다.
 
 </details>
 
-## 사용 API와 환경 변수
+## 환경 변수
 
-- OpenWeather Current Weather Data
-- OpenWeather 5 Day / 3 Hour Forecast
-- OpenWeather Reverse Geocoding
-- Kakao Local 주소 검색
-- Browser Geolocation API
-- Ventusky Embed
-
-프로젝트 루트의 `.env`에 다음 키를 설정합니다. 실제 키 값은 저장소에 올리지 않습니다.
+프로젝트 루트의 `.env.local`에 다음 키를 설정합니다. `*.local`은 `.gitignore`에서 제외됩니다.
 
 ```dotenv
 VITE_OPENWEATHER_API_KEY=발급받은_OpenWeather_Key
@@ -348,13 +423,3 @@ npm run dev
 npm run lint
 npm run build
 ```
-
-## 기술 스택
-
-- Vue 3 Composition API
-- Vue Router
-- Pinia
-- Axios
-- PrimeVue
-- VueUse
-- Vite
