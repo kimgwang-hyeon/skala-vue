@@ -33,6 +33,14 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  suggestionsId: {
+    type: String,
+    default: '',
+  },
+  suggestionsVisible: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 // [Emits] 자식에서 부모로 보낼 이벤트 이름 등록
@@ -65,6 +73,10 @@ const handleSubmit = () => {
         :value="props.searchQuery"
         :placeholder="props.placeholder"
         :aria-label="props.placeholder"
+        :aria-controls="props.suggestionsId || undefined"
+        :aria-expanded="props.suggestionsId ? props.suggestionsVisible : undefined"
+        :aria-autocomplete="props.suggestionsId ? 'list' : undefined"
+        autocomplete="off"
         @input="handleInput"
         @keyup.enter="handleSubmit"
       />

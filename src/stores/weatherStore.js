@@ -60,6 +60,54 @@ export const createLocationFromGeocode = (item) => {
   }
 }
 
+const normalizeAdministrativeName = (name) => {
+  return String(name ?? '').replace(/(특별자치도|특별시|광역시|특별자치시|시|군|구)$/u, '')
+}
+
+// 카카오 주소 검색 응답을 앱 전체에서 사용하는 좌표 기반 도시 객체로 변환
+export const createLocationFromKakao = (item) => {
+  const address = item.address ?? {}
+  const locationName =
+    address.region_3depth_h_name ||
+    address.region_3depth_name ||
+    address.region_2depth_name ||
+    address.region_1depth_name ||
+    item.address_name
+  const state = [address.region_1depth_name, address.region_2depth_name]
+    .filter((regionName) => regionName && regionName !== locationName)
+    .join(' ')
+  const defaultLocation = DEFAULT_DASHBOARD_LOCATIONS.find((location) => {
+    return (
+      normalizeAdministrativeName(location.name) === normalizeAdministrativeName(locationName) &&
+      location.country === 'KR'
+    )
+  })
+
+  // 기본 도시는 기존 대표 좌표를 재사용해 대시보드에 중복 등록되지 않도록 함
+  if (defaultLocation) {
+    return {
+      ...cloneLocation(defaultLocation),
+      addressName: item.address_name,
+      source: 'kakao',
+    }
+  }
+
+  const coord = {
+    lat: Number(item.y),
+    lon: Number(item.x),
+  }
+
+  return {
+    key: createLocationKey(coord),
+    name: locationName,
+    state,
+    country: 'KR',
+    coord,
+    addressName: item.address_name,
+    source: 'kakao',
+  }
+}
+
 export const DEFAULT_DASHBOARD_LOCATIONS = weatherMockList.map(toDefaultLocation)
 
 const readStoredList = (key) => {

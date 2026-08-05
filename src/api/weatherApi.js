@@ -33,17 +33,6 @@ export const fetchForecast = ({ lat, lon }) => {
   })
 }
 
-// 대한민국 도시 이름을 좌표로 변환
-export const searchKoreanCities = (query) => {
-  return geocodingApi.get('/direct', {
-    params: {
-      q: `${query},KR`,
-      limit: 5,
-      appid: import.meta.env.VITE_OPENWEATHER_API_KEY,
-    },
-  })
-}
-
 // 브라우저 현재 좌표를 사람이 읽을 수 있는 도시명으로 변환
 export const reverseGeocodeLocation = ({ lat, lon }) => {
   return geocodingApi.get('/reverse', {
