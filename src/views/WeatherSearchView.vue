@@ -399,7 +399,7 @@ onMounted(() => {
     >
       <SearchBar
         :search-query="searchQuery"
-        placeholder="예: 계룡, 성남, 전주"
+        placeholder="예: 서울"
         status-label="현재 검색어"
         show-submit-button
         submit-label="지역 찾기"
