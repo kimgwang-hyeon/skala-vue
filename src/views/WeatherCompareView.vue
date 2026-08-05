@@ -40,8 +40,10 @@ const rightLocation = computed(() => weatherStore.findLocation(rightLocationKey.
 const loadComparison = async () => {
   const requestId = ++comparisonRequestId
 
+  // 앞선 요청이 진행 중이어도 여기서 끝내므로 로딩 상태를 직접 해제해야 함
   if (!leftLocation.value || !rightLocation.value) {
     errorMessage.value = '비교할 도시 두 곳을 선택해 주세요.'
+    isLoading.value = false
     return
   }
 
@@ -49,6 +51,7 @@ const loadComparison = async () => {
     leftWeather.value = null
     rightWeather.value = null
     errorMessage.value = '서로 다른 두 도시를 선택해 주세요.'
+    isLoading.value = false
     return
   }
 

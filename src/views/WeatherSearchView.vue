@@ -102,6 +102,9 @@ const createWeatherItem = (location, apiWeather) => {
 }
 
 let locationRequestId = 0
+
+// 지역 선택과 현재 위치 검색이 같은 순번을 공유해야 서로의 낡은 응답을 무효화할 수 있음
+let weatherRequestId = 0
 let suggestionTimerId
 
 // 검색어를 URL query와 동기화하여 새로고침·뒤로가기에도 유지
@@ -252,6 +255,7 @@ const loadLocationSuggestions = async (query, announce = false) => {
 
 const handleSelectLocation = async (location) => {
   clearTimeout(suggestionTimerId)
+  const requestId = ++weatherRequestId
   locationRequestId += 1
   selectedLocation.value = location
   rawLocationResults.value = []
@@ -269,17 +273,29 @@ const handleSelectLocation = async (location) => {
 
   try {
     const weatherResponse = await fetchCurrentWeather(location.coord)
+
+    // 그 사이 다른 지역이나 현재 위치를 조회했다면 낡은 응답이므로 폐기
+    if (requestId !== weatherRequestId) {
+      return
+    }
+
     searchWeatherList.value = [createWeatherItem(location, weatherResponse.data)]
     rememberApiSearch(location.name)
     searchStatus.value = `${location.name} 현재 날씨를 표시했습니다.`
   } catch (error) {
+    if (requestId !== weatherRequestId) {
+      return
+    }
+
     searchError.value =
       error.response?.status === 401
         ? 'OpenWeather API 키를 확인해 주세요.'
         : `${location.name}의 날씨를 불러오지 못했습니다.`
     searchStatus.value = '선택한 지역의 날씨 조회를 완료하지 못했습니다.'
   } finally {
-    isSearching.value = false
+    if (requestId === weatherRequestId) {
+      isSearching.value = false
+    }
   }
 }
 
@@ -345,6 +361,7 @@ const handleSearchCurrentLocation = async () => {
   }
 
   isLocating.value = true
+  const requestId = ++weatherRequestId
   locationRequestId += 1
   selectedLocation.value = null
   rawLocationResults.value = []
@@ -360,6 +377,11 @@ const handleSearchCurrentLocation = async () => {
     const geocodeResponse = await reverseGeocodeLocation(coordinates)
     const geocode = geocodeResponse.data[0]
 
+    // 위치 확인을 기다리는 동안 사용자가 지역을 검색했다면 그쪽 결과를 유지
+    if (requestId !== weatherRequestId) {
+      return
+    }
+
     if (!geocode) {
       throw new Error('REVERSE_GEOCODE_EMPTY')
     }
@@ -374,11 +396,19 @@ const handleSearchCurrentLocation = async () => {
     searchQuery.value = location.name
     const weatherResponse = await fetchCurrentWeather(location.coord)
 
+    if (requestId !== weatherRequestId) {
+      return
+    }
+
     weatherStore.rememberLocations([location])
     searchWeatherList.value = [createWeatherItem(location, weatherResponse.data)]
     rememberApiSearch(location.name)
     searchStatus.value = `현재 위치를 ${location.name}(으)로 확인했습니다.`
   } catch (error) {
+    if (requestId !== weatherRequestId) {
+      return
+    }
+
     if (error.code === 1) {
       searchError.value = '위치 권한이 거부되었습니다. 브라우저 설정에서 허용해 주세요.'
     } else if (error.code === 3) {
@@ -463,7 +493,7 @@ onMounted(() => {
         status-label="현재 검색어"
         show-submit-button
         submit-label="지역 찾기"
-        :submit-disabled="isSearching || isSuggesting || !isApiQueryValid"
+        :submit-disabled="isSearching || isSuggesting || isLocating || !isApiQueryValid"
         suggestions-id="kakao-location-suggestions"
         :suggestions-visible="showLocationSuggestions"
         compact
