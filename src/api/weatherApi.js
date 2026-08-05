@@ -1,11 +1,16 @@
 import axios from 'axios'
 
+// 응답이 오지 않을 때 로딩 상태에 갇히지 않도록 공통 제한 시간을 둠
+const REQUEST_TIMEOUT = 5000
+
 const weatherApi = axios.create({
   baseURL: 'https://api.openweathermap.org/data/2.5',
+  timeout: REQUEST_TIMEOUT,
 })
 
 const geocodingApi = axios.create({
   baseURL: 'https://api.openweathermap.org/geo/1.0',
+  timeout: REQUEST_TIMEOUT,
 })
 
 export const fetchCurrentWeather = ({ lat, lon }) => {

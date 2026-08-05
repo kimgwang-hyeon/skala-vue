@@ -11,8 +11,13 @@ const readList = (key) => {
   }
 }
 
+// 사파리 프라이빗 모드나 용량 초과(QuotaExceededError)로 저장이 실패해도 앱은 계속 동작해야 함
 const writeList = (key, value) => {
-  localStorage.setItem(key, JSON.stringify(value))
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // 저장 실패는 화면 동작에 영향이 없으므로 무시
+  }
 }
 
 export const getRecentSearches = () => readList(RECENT_SEARCHES_KEY)

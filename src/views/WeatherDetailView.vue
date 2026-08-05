@@ -15,6 +15,9 @@ const route = useRoute()
 const isLoading = ref(false)
 const errorMessage = ref('')
 
+// 도시를 빠르게 옮길 때 먼저 보낸 요청이 늦게 도착해 화면을 덮어쓰지 않도록 요청 순번을 기록
+let weatherRequestId = 0
+
 // 3시간 간격 예보와 사용자가 선택한 예보의 순서
 const forecastList = ref([])
 const selectedForecastIndex = ref(0)
@@ -38,6 +41,7 @@ const findCity = (cityId) => {
 
 // 도시 좌표를 기준으로 OpenWeather 현재 날씨를 요청
 const loadWeather = async (cityId) => {
+  const requestId = ++weatherRequestId
   const city = findCity(cityId)
 
   // URL의 cityId에 해당하는 도시가 없으면 NotFound로 이동
@@ -64,19 +68,31 @@ const loadWeather = async (cityId) => {
       fetchForecast(city.coord),
     ])
 
+    // 그 사이 다른 도시로 이동했다면 낡은 응답이므로 폐기
+    if (requestId !== weatherRequestId) {
+      return
+    }
+
     selectedCity.value = currentResponse.data
 
     // 5일 요약과 24시간 예보 둘 다에 쓰기 위해 40개 전체를 저장
     forecastList.value = forecastResponse.data.list
     forecastTimezone.value = forecastResponse.data.city.timezone
   } catch (error) {
+    if (requestId !== weatherRequestId) {
+      return
+    }
+
     if (error.response?.status === 401) {
       errorMessage.value = 'OpenWeather API 키가 유효하지 않거나 아직 활성화되지 않았습니다.'
     } else {
       errorMessage.value = '날씨 정보를 불러오지 못했습니다.'
     }
   } finally {
-    isLoading.value = false
+    // 최신 요청만 로딩 상태를 해제해야 진행 중인 요청이 끝난 것처럼 보이지 않음
+    if (requestId === weatherRequestId) {
+      isLoading.value = false
+    }
   }
 }
 
