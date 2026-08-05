@@ -9,9 +9,7 @@ import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
       <div>
         <p class="page-eyebrow">About / SKALA Weather</p>
         <h1>날씨를 탐색하는<br />Vue 학습 프로젝트</h1>
-        <p class="page-description">
-          학습한 Vue 기능을 실제 서비스 흐름 안에서 연결했습니다.
-        </p>
+        <p class="page-description">학습한 Vue 기능을 실제 서비스 흐름 안에서 연결했습니다.</p>
       </div>
     </header>
 
@@ -41,16 +39,22 @@ import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
           <strong>Axios</strong>
           <p>OpenWeather API로 대한민국 도시와 실제 기상 정보를 조회합니다.</p>
         </article>
+        <article>
+          <span>05</span>
+          <strong>PrimeVue</strong>
+          <p>정렬, 필터, 로딩, 알림과 확인창을 재사용 가능한 UI로 구성합니다.</p>
+        </article>
+        <article>
+          <span>06</span>
+          <strong>VueUse</strong>
+          <p>테마, 브라우저 저장소와 검색 디바운스 로직을 간결하게 관리합니다.</p>
+        </article>
       </div>
 
       <template #footer>
         <div class="about-actions">
-          <RouterLink class="button-primary" :to="{ name: 'home' }">
-            대시보드로 이동
-          </RouterLink>
-          <RouterLink class="button-secondary" :to="{ name: 'search' }">
-            도시 탐색하기
-          </RouterLink>
+          <RouterLink class="button-primary" :to="{ name: 'home' }"> 대시보드로 이동 </RouterLink>
+          <RouterLink class="button-secondary" :to="{ name: 'search' }"> 도시 탐색하기 </RouterLink>
         </div>
       </template>
     </BaseDashboardCard>

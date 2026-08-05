@@ -1,4 +1,6 @@
 <script setup>
+import PrimeSkeleton from 'primevue/skeleton'
+
 // [Props] 카카오 지역 후보 목록과 조회 상태를 부모에게서 받아 표시만 담당
 defineProps({
   suggestions: {
@@ -39,7 +41,19 @@ defineEmits(['select'])
       <span>Kakao Local</span>
     </div>
 
-    <p v-if="isLoading" class="location-suggestion-state">입력한 지역을 찾고 있습니다...</p>
+    <div
+      v-if="isLoading"
+      class="location-suggestion-loading"
+      aria-label="입력한 지역을 찾고 있습니다"
+    >
+      <div v-for="index in 3" :key="index">
+        <PrimeSkeleton shape="circle" size="1rem" />
+        <span>
+          <PrimeSkeleton width="35%" height="0.7rem" />
+          <PrimeSkeleton width="70%" height="0.55rem" />
+        </span>
+      </div>
+    </div>
 
     <p v-else-if="errorMessage" class="location-suggestion-state error">
       {{ errorMessage }}
@@ -105,6 +119,28 @@ defineEmits(['select'])
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.location-suggestion-loading {
+  display: grid;
+}
+
+.location-suggestion-loading > div {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-height: 54px;
+  padding: 9px 12px;
+}
+
+.location-suggestion-loading > div + div {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.location-suggestion-loading span {
+  display: grid;
+  gap: 7px;
 }
 
 .location-suggestion-list li + li {

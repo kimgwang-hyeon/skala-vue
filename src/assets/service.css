@@ -397,7 +397,11 @@
   right: -80px;
   width: 360px;
   height: 360px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--weather-accent, var(--blue)) 16%, transparent), transparent 66%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--weather-accent, var(--blue)) 16%, transparent),
+    transparent 66%
+  );
   border-radius: 50%;
   content: '';
 }
@@ -656,10 +660,15 @@
   font-weight: 560;
 }
 
-.app-main .dashboard-sort-control select {
+.app-main .dashboard-sort-control .p-select {
+  min-width: 150px;
   min-height: 42px;
-  padding: 0 34px 0 11px;
   border-radius: 7px;
+  font-size: 12px;
+}
+
+.app-main .dashboard-sort-control .p-select-label {
+  padding: 11px;
   font-size: 12px;
 }
 
@@ -678,10 +687,9 @@
   font-weight: 560;
 }
 
-.dashboard-favorite-filter input {
-  width: 14px;
-  height: 14px;
-  accent-color: var(--accent-primary);
+.dashboard-favorite-filter .p-toggleswitch {
+  width: 32px;
+  height: 19px;
 }
 
 .dashboard-recent-searches {
@@ -746,6 +754,31 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
+}
+
+.dashboard-loading-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dashboard-loading-card {
+  display: flex;
+  min-height: 300px;
+  gap: 18px;
+  padding: 20px;
+  background: var(--surface-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 11px;
+  flex-direction: column;
+}
+
+.dashboard-loading-card .p-skeleton:nth-child(3) {
+  margin-top: 10px;
+}
+
+.dashboard-loading-card .p-skeleton:nth-child(4) {
+  margin-top: auto;
 }
 
 .inline-alert,
@@ -1976,7 +2009,8 @@ textarea:focus-visible {
     min-height: 260px;
   }
 
-  .weather-card-grid {
+  .weather-card-grid,
+  .dashboard-loading-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -2169,12 +2203,16 @@ textarea:focus-visible {
     justify-content: space-between;
   }
 
-  .app-main .dashboard-sort-control select {
+  .app-main .dashboard-sort-control .p-select {
     flex: 1;
   }
 
   .dashboard-favorite-filter {
     justify-content: center;
+  }
+
+  .dashboard-loading-grid {
+    grid-template-columns: 1fr;
   }
 
   .city-list-heading {

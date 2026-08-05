@@ -1,4 +1,6 @@
 <script setup>
+import PrimeButton from 'primevue/button'
+
 // [Props] 부모(WeatherParent)가 관리하는 검색어를 받음
 const props = defineProps({
   searchQuery: {
@@ -81,15 +83,14 @@ const handleSubmit = () => {
         @keyup.enter="handleSubmit"
       />
 
-      <button
+      <PrimeButton
         v-if="props.showSubmitButton"
         type="button"
         class="search-submit-button"
+        :label="props.submitLabel"
         :disabled="props.submitDisabled"
         @click="handleSubmit"
-      >
-        {{ props.submitLabel }}
-      </button>
+      />
     </div>
     <!-- input 이벤트는 handleInput을 통해 부모에게 전달됨 -->
     <p v-if="props.showStatus">

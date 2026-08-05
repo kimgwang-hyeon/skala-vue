@@ -1,6 +1,8 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
+import ConfirmDialog from 'primevue/confirmdialog'
+import Toast from 'primevue/toast'
 
 import ThemeSwitcher from '@/components/exercise/ThemeSwitcher.vue'
 import UnitToggler from '@/components/exercise/UnitToggler.vue'
@@ -41,6 +43,9 @@ watch(
 
 <template>
   <div class="app-shell">
+    <Toast position="bottom-right" />
+    <ConfirmDialog />
+
     <a class="skip-link" href="#main-content">본문으로 바로가기</a>
 
     <header class="site-header">
@@ -49,7 +54,9 @@ watch(
           <span class="app-brand-mark" aria-hidden="true">
             <svg viewBox="0 0 28 28">
               <circle cx="14" cy="14" r="5" />
-              <path d="M14 2.5v3M14 22.5v3M2.5 14h3M22.5 14h3M5.9 5.9 8 8M20 20l2.1 2.1M5.9 22.1 8 20M20 8l2.1-2.1" />
+              <path
+                d="M14 2.5v3M14 22.5v3M2.5 14h3M22.5 14h3M5.9 5.9 8 8M20 20l2.1 2.1M5.9 22.1 8 20M20 8l2.1-2.1"
+              />
             </svg>
           </span>
           <span class="app-brand-copy">
@@ -105,7 +112,7 @@ watch(
         <div>
           <RouterLink :to="{ name: 'about' }">서비스 소개</RouterLink>
           <span aria-hidden="true">·</span>
-          <span>Vue 3 · Pinia · Vue Router</span>
+          <span>Vue 3 · Pinia · Vue Router · PrimeVue · VueUse</span>
         </div>
       </div>
     </footer>

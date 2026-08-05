@@ -1,5 +1,12 @@
 <script setup>
-import { ref, computed, watch, watchEffect } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
+import PrimeButton from 'primevue/button'
+import PrimeSelect from 'primevue/select'
+import PrimeSkeleton from 'primevue/skeleton'
+import PrimeToggleSwitch from 'primevue/toggleswitch'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
+import { computed, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import BaseDashboardCard from '@/components/exercise/BaseDashboardCard.vue'
@@ -20,6 +27,8 @@ const router = useRouter()
 // 대시보드 도시·즐겨찾기를 모든 라우트에서 공유하는 Pinia 스토어
 const weatherStore = useWeatherStore()
 const configStore = useConfigStore()
+const confirm = useConfirm()
+const toast = useToast()
 
 // query 값이 문자열일 때만 검색어로 사용
 const getQueryText = (queryValue) => {
@@ -112,7 +121,14 @@ watch(
 // 2. [1일차 데이터] URL에 q가 있으면 새로고침 후에도 검색어 복원
 const searchQuery = ref(getQueryText(route.query.q))
 
-const SORT_OPTIONS = ['default', 'temp-desc', 'temp-asc', 'humidity-desc', 'name']
+const SORT_OPTION_ITEMS = [
+  { label: '등록순', value: 'default' },
+  { label: '기온 높은 순', value: 'temp-desc' },
+  { label: '기온 낮은 순', value: 'temp-asc' },
+  { label: '습도 높은 순', value: 'humidity-desc' },
+  { label: '도시 이름순', value: 'name' },
+]
+const SORT_OPTIONS = SORT_OPTION_ITEMS.map((option) => option.value)
 const getSortOption = (value) => {
   return typeof value === 'string' && SORT_OPTIONS.includes(value) ? value : 'default'
 }
@@ -140,27 +156,25 @@ const isSameHomeQuery = (left, right) => {
   return HOME_QUERY_KEYS.every((key) => (left[key] ?? '') === (right[key] ?? ''))
 }
 
-let queryUpdateTimerId
-
 // watch 실습: 화면 상태가 바뀌면 URL을 갱신해 새로고침·뒤로가기에도 유지
 // 입력을 멈춘 뒤에만 replace를 호출하므로 글자마다 라우팅이 일어나지 않음
 // (목록 필터링은 computed가 즉시 처리하므로 화면 반응은 지연되지 않음)
-watch([searchQuery, sortOption, showFavoritesOnly], (_newValues, _oldValues, onCleanup) => {
-  clearTimeout(queryUpdateTimerId)
+const updateHomeQuery = useDebounceFn(() => {
+  const nextQuery = buildHomeQuery()
 
-  queryUpdateTimerId = window.setTimeout(() => {
-    const nextQuery = buildHomeQuery()
+  if (isSameHomeQuery(nextQuery, route.query)) {
+    return
+  }
 
-    if (isSameHomeQuery(nextQuery, route.query)) {
-      return
-    }
+  router.replace({ name: 'home', query: nextQuery })
+}, 300)
 
-    router.replace({ name: 'home', query: nextQuery })
-  }, 300)
+watch([searchQuery, sortOption, showFavoritesOnly], () => {
+  updateHomeQuery()
+})
 
-  onCleanup(() => {
-    clearTimeout(queryUpdateTimerId)
-  })
+onUnmounted(() => {
+  updateHomeQuery.cancel()
 })
 
 // 주소창 입력이나 브라우저 뒤로가기로 query가 바뀌면 화면 상태를 되돌림
@@ -298,9 +312,7 @@ const decomposeHangul = (text) => {
         return char
       }
 
-      return (
-        CHOSEONG[parts.initial] + JUNGSEONG[parts.medial] + JONGSEONG[parts.final]
-      )
+      return CHOSEONG[parts.initial] + JUNGSEONG[parts.medial] + JONGSEONG[parts.final]
     })
     .join('')
 }
@@ -381,9 +393,7 @@ const dashboardSummary = computed(() => {
   })
 
   return {
-    averageTemperature: configStore.convertTemperature(
-      totalTemperature / weatherList.value.length,
-    ),
+    averageTemperature: configStore.convertTemperature(totalTemperature / weatherList.value.length),
     hottestCityName: hottestCity.name,
     hottestTemperature: configStore.convertTemperature(hottestCity.main.temp),
   }
@@ -394,9 +404,7 @@ const featuredWeather = computed(() => {
 })
 
 const featuredWeatherDisplay = computed(() => {
-  return featuredWeather.value
-    ? getWeatherDisplay(featuredWeather.value.weather[0])
-    : null
+  return featuredWeather.value ? getWeatherDisplay(featuredWeather.value.weather[0]) : null
 })
 
 const currentDateLabel = new Intl.DateTimeFormat('ko-KR', {
@@ -463,6 +471,31 @@ const clearRecentSearches = () => {
   saveRecentSearches([])
 }
 
+const requestClearRecentSearches = () => {
+  confirm.require({
+    header: '최근 검색 삭제',
+    message: '저장된 최근 검색어를 모두 삭제할까요?',
+    rejectLabel: '취소',
+    acceptLabel: '전체 삭제',
+    rejectProps: {
+      severity: 'secondary',
+      outlined: true,
+    },
+    acceptProps: {
+      severity: 'danger',
+    },
+    accept: () => {
+      clearRecentSearches()
+      toast.add({
+        severity: 'success',
+        summary: '최근 검색',
+        detail: '최근 검색 기록을 모두 삭제했습니다.',
+        life: 2600,
+      })
+    },
+  })
+}
+
 const isFavorite = (locationKey) => {
   return weatherStore.isFavorite(locationKey)
 }
@@ -479,6 +512,13 @@ const toggleFavorite = (locationKey) => {
   selectedCityInfo.value = added
     ? `${location.name} 즐겨찾기에 추가했습니다.`
     : `${location.name} 즐겨찾기를 해제했습니다.`
+
+  toast.add({
+    severity: added ? 'success' : 'info',
+    summary: '즐겨찾기',
+    detail: selectedCityInfo.value,
+    life: 2600,
+  })
 }
 
 // SearchBar가 보낸 검색어 변경 Emit을 처리하는 부모 함수
@@ -492,6 +532,13 @@ const submitSearch = () => {
   selectedCityInfo.value = searchQuery.value
     ? `${searchQuery.value} 검색을 실행했습니다.`
     : '검색어를 입력해 주세요.'
+
+  toast.add({
+    severity: searchQuery.value ? 'info' : 'warn',
+    summary: '내 도시 검색',
+    detail: selectedCityInfo.value,
+    life: 2400,
+  })
 }
 
 // SearchBar가 Enter 입력으로 보낸 검색 실행 Emit을 처리하는 부모 함수
@@ -511,18 +558,64 @@ const handleToggleFavorite = (locationKey) => {
 
 const handleRemoveDashboard = (locationKey) => {
   const location = weatherStore.findLocation(locationKey)
-  weatherStore.removeDashboardCity(locationKey)
-  selectedCityInfo.value = `${location?.name ?? '도시'} 대시보드에서 삭제했습니다.`
+
+  confirm.require({
+    header: '대시보드 도시 삭제',
+    message: `${location?.name ?? '선택한 도시'} 대시보드 카드를 삭제할까요?`,
+    rejectLabel: '취소',
+    acceptLabel: '삭제',
+    rejectProps: {
+      severity: 'secondary',
+      outlined: true,
+    },
+    acceptProps: {
+      severity: 'danger',
+    },
+    accept: () => {
+      weatherStore.removeDashboardCity(locationKey)
+      selectedCityInfo.value = `${location?.name ?? '도시'} 대시보드에서 삭제했습니다.`
+      toast.add({
+        severity: 'success',
+        summary: '대시보드',
+        detail: selectedCityInfo.value,
+        life: 2600,
+      })
+    },
+  })
 }
 
 const handleResetDashboard = () => {
-  weatherStore.resetDashboardCities()
-  selectedCityInfo.value = '기본 도시 5개를 복원했습니다.'
+  confirm.require({
+    header: '기본 도시 복원',
+    message: '현재 대시보드를 기본 도시 5개로 되돌릴까요?',
+    rejectLabel: '취소',
+    acceptLabel: '복원',
+    rejectProps: {
+      severity: 'secondary',
+      outlined: true,
+    },
+    accept: () => {
+      weatherStore.resetDashboardCities()
+      selectedCityInfo.value = '기본 도시 5개를 복원했습니다.'
+      toast.add({
+        severity: 'success',
+        summary: '대시보드',
+        detail: selectedCityInfo.value,
+        life: 2600,
+      })
+    },
+  })
 }
 
-const handleRefreshDashboard = () => {
-  loadDashboardWeather()
+const handleRefreshDashboard = async () => {
+  await loadDashboardWeather()
   selectedCityInfo.value = '대시보드 날씨를 새로고침했습니다.'
+  toast.add({
+    severity: dashboardError.value ? 'warn' : 'success',
+    summary: '날씨 새로고침',
+    detail: dashboardError.value || selectedCityInfo.value,
+    life: 2600,
+  })
 }
 </script>
 
@@ -559,18 +652,14 @@ const handleRefreshDashboard = () => {
 
         <div class="featured-weather-current">
           <span aria-hidden="true">{{ featuredWeatherDisplay.emoji }}</span>
-          <strong>
-            {{ configStore.convertTemperature(featuredWeather.main.temp) }}°
-          </strong>
+          <strong> {{ configStore.convertTemperature(featuredWeather.main.temp) }}° </strong>
           <small>{{ configStore.unit === 'celsius' ? 'C' : 'F' }}</small>
         </div>
 
         <dl class="featured-weather-metrics">
           <div>
             <dt>체감</dt>
-            <dd>
-              {{ configStore.convertTemperature(featuredWeather.main.feels_like) }}°
-            </dd>
+            <dd>{{ configStore.convertTemperature(featuredWeather.main.feels_like) }}°</dd>
           </div>
           <div>
             <dt>습도</dt>
@@ -623,9 +712,6 @@ const handleRefreshDashboard = () => {
     </section>
 
     <p v-if="dashboardError" class="inline-alert">{{ dashboardError }}</p>
-    <p v-if="isDashboardLoading && weatherList.length === 0" class="detail-state">
-      대시보드 날씨를 불러오는 중입니다...
-    </p>
 
     <BaseDashboardCard
       eyebrow="Cities"
@@ -633,12 +719,20 @@ const handleRefreshDashboard = () => {
       description="등록한 도시의 현재 날씨를 검색하고 정렬할 수 있습니다."
     >
       <template #actions>
-        <button type="button" class="button-secondary" @click="handleRefreshDashboard">
-          새로고침
-        </button>
-        <button type="button" class="button-secondary" @click="handleResetDashboard">
-          기본 도시 복원
-        </button>
+        <PrimeButton
+          label="새로고침"
+          severity="secondary"
+          size="small"
+          outlined
+          @click="handleRefreshDashboard"
+        />
+        <PrimeButton
+          label="기본 도시 복원"
+          severity="secondary"
+          size="small"
+          outlined
+          @click="handleResetDashboard"
+        />
       </template>
 
       <div class="dashboard-filter-panel">
@@ -654,17 +748,17 @@ const handleRefreshDashboard = () => {
 
         <label class="dashboard-sort-control">
           <span>정렬</span>
-          <select v-model="sortOption" aria-label="카드 정렬">
-            <option value="default">등록순</option>
-            <option value="temp-desc">기온 높은 순</option>
-            <option value="temp-asc">기온 낮은 순</option>
-            <option value="humidity-desc">습도 높은 순</option>
-            <option value="name">도시 이름순</option>
-          </select>
+          <PrimeSelect
+            v-model="sortOption"
+            :options="SORT_OPTION_ITEMS"
+            option-label="label"
+            option-value="value"
+            aria-label="카드 정렬"
+          />
         </label>
 
         <label class="dashboard-favorite-filter">
-          <input v-model="showFavoritesOnly" type="checkbox" />
+          <PrimeToggleSwitch v-model="showFavoritesOnly" input-id="favorites-only" />
           <span>즐겨찾기만</span>
         </label>
       </div>
@@ -672,7 +766,7 @@ const handleRefreshDashboard = () => {
       <div v-if="recentSearches.length > 0" class="recent-searches dashboard-recent-searches">
         <div class="recent-searches-header">
           <strong>최근 검색</strong>
-          <button type="button" @click="clearRecentSearches">전체 삭제</button>
+          <button type="button" @click="requestClearRecentSearches">전체 삭제</button>
         </div>
 
         <div class="recent-search-list">
@@ -694,6 +788,20 @@ const handleRefreshDashboard = () => {
           / {{ weatherStore.dashboardCities.length }}개 도시 표시
         </p>
         <RouterLink :to="{ name: 'search' }">새 도시 검색 →</RouterLink>
+      </div>
+
+      <div
+        v-if="isDashboardLoading && weatherList.length === 0"
+        class="dashboard-loading-grid"
+        aria-label="대시보드 날씨를 불러오는 중입니다"
+      >
+        <article v-for="index in 3" :key="index" class="dashboard-loading-card">
+          <PrimeSkeleton width="30%" height="0.65rem" />
+          <PrimeSkeleton width="52%" height="1.35rem" />
+          <PrimeSkeleton width="72%" height="4.5rem" />
+          <PrimeSkeleton width="100%" height="3.5rem" />
+          <PrimeSkeleton width="100%" height="2.25rem" />
+        </article>
       </div>
 
       <div v-if="displayWeatherList.length > 0" class="weather-card-grid">

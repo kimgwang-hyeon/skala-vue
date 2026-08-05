@@ -1,31 +1,45 @@
-import { computed, ref, watch } from 'vue'
+import { useColorMode, useLocalStorage } from '@vueuse/core'
+import { computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 
 const THEME_STORAGE_KEY = 'weather-display-theme'
 const UNIT_STORAGE_KEY = 'weather-temperature-unit'
 const AVAILABLE_THEMES = ['system', 'light', 'dark']
 
-const getStoredTheme = () => {
+const migrateStoredTheme = () => {
   const storedTheme = localStorage.getItem(THEME_STORAGE_KEY)
-  return AVAILABLE_THEMES.includes(storedTheme) ? storedTheme : 'system'
-}
 
-const getStoredUnit = () => {
-  const storedUnit = localStorage.getItem(UNIT_STORAGE_KEY)
-  return storedUnit === 'fahrenheit' ? storedUnit : 'celsius'
+  if (storedTheme === 'system') {
+    localStorage.setItem(THEME_STORAGE_KEY, 'auto')
+  } else if (storedTheme && !['auto', 'light', 'dark'].includes(storedTheme)) {
+    localStorage.removeItem(THEME_STORAGE_KEY)
+  }
 }
 
 export const useConfigStore = defineStore('config', () => {
-  // 현재 온도 단위: PDF 실습 기준 값
-  const unit = ref(getStoredUnit())
-  const theme = ref(getStoredTheme())
+  migrateStoredTheme()
 
-  // 초기값과 변경 감지가 같은 MediaQueryList를 쓰도록 한 번만 생성
-  const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  const systemPrefersDark = ref(systemThemeQuery.matches)
+  // VueUse: 현재 온도 단위를 localStorage와 자동 동기화
+  const unit = useLocalStorage(UNIT_STORAGE_KEY, 'celsius')
 
-  systemThemeQuery.addEventListener('change', (event) => {
-    systemPrefersDark.value = event.matches
+  if (!['celsius', 'fahrenheit'].includes(unit.value)) {
+    unit.value = 'celsius'
+  }
+
+  // VueUse: 시스템 테마 감지, HTML data-theme 반영, 저장을 한 번에 처리
+  const colorMode = useColorMode({
+    selector: 'html',
+    attribute: 'data-theme',
+    initialValue: 'auto',
+    storageKey: THEME_STORAGE_KEY,
+  })
+
+  // 기존 컴포넌트 API는 system/light/dark 형태로 그대로 유지
+  const theme = computed({
+    get: () => (colorMode.store.value === 'auto' ? 'system' : colorMode.store.value),
+    set: (newTheme) => {
+      colorMode.store.value = newTheme === 'system' ? 'auto' : newTheme
+    },
   })
 
   // getter 역할
@@ -33,14 +47,7 @@ export const useConfigStore = defineStore('config', () => {
     return unit.value === 'celsius' ? '°C' : '°F'
   })
 
-  // system을 선택한 경우 운영체제 설정을 반영한 실제 테마를 계산
-  const resolvedTheme = computed(() => {
-    if (theme.value === 'system') {
-      return systemPrefersDark.value ? 'dark' : 'light'
-    }
-
-    return theme.value
-  })
+  const resolvedTheme = computed(() => colorMode.state.value)
 
   // 섭씨 값을 현재 단위에 맞게 변환
   const convertTemperature = (celsius) => {
@@ -62,14 +69,10 @@ export const useConfigStore = defineStore('config', () => {
     }
   }
 
-  // watch 실습: 사용자가 선택한 설정을 저장하고 실제 HTML 테마에 반영
+  // watch 실습: 실제 테마가 바뀔 때 브라우저 UI 색상도 함께 갱신
   watch(
-    [unit, theme, resolvedTheme],
-    ([newUnit, newTheme, newResolvedTheme]) => {
-      localStorage.setItem(UNIT_STORAGE_KEY, newUnit)
-      localStorage.setItem(THEME_STORAGE_KEY, newTheme)
-      document.documentElement.dataset.theme = newResolvedTheme
-      document.documentElement.style.colorScheme = newResolvedTheme
+    resolvedTheme,
+    (newResolvedTheme) => {
       document
         .querySelector('meta[name="theme-color"]')
         ?.setAttribute('content', newResolvedTheme === 'dark' ? '#000000' : '#ffffff')

@@ -96,12 +96,13 @@ const handleRemoveDashboard = () => {
   <article
     class="weather-card"
     :class="`weather-tone-${weatherDisplay.tone}`"
+    @click="handleCardClick"
   >
     <header class="weather-card-header">
       <div>
         <p v-if="locationLabel" class="weather-location">{{ locationLabel }}</p>
         <h3>
-          <button type="button" class="weather-card-title-button" @click="handleCardClick">
+          <button type="button" class="weather-card-title-button" @click.stop="handleCardClick">
             {{ props.weather.name }}
           </button>
         </h3>
@@ -149,7 +150,6 @@ const handleRemoveDashboard = () => {
     </dl>
 
     <div class="weather-card-actions">
-
       <button
         v-if="props.showDashboardAction"
         type="button"
@@ -188,7 +188,7 @@ const handleRemoveDashboard = () => {
   border: 1px solid var(--border-subtle);
   border-radius: 11px;
   box-shadow: none;
-  cursor: default;
+  cursor: pointer;
   flex-direction: column;
   transition:
     border-color 150ms ease,

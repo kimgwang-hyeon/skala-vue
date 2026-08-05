@@ -1,3 +1,4 @@
+import { useDebounceFn } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
 import { searchKoreanRegions } from '@/api/locationApi.js'
@@ -34,7 +35,6 @@ export const useLocationSearch = () => {
 
   // 늦게 도착한 이전 응답이 최신 후보를 덮어쓰지 않도록 요청 순번을 기록
   let requestSequence = 0
-  let debounceTimerId
 
   // 행정구역만 남기고 좌표가 같은 후보는 한 번만 표시
   const suggestions = computed(() => {
@@ -50,33 +50,12 @@ export const useLocationSearch = () => {
     return [...locationMap.values()]
   })
 
-  const stopScheduledSearch = () => {
-    clearTimeout(debounceTimerId)
-  }
-
-  // 진행 중인 조회를 무효화 (다른 흐름이 화면을 차지할 때 사용)
-  const invalidate = () => {
-    stopScheduledSearch()
-    requestSequence += 1
-    isSuggesting.value = false
-  }
-
-  const reset = () => {
-    invalidate()
-    rawResults.value = []
-    hasRequested.value = false
-    errorMessage.value = ''
-  }
-
-  const search = async (query) => {
+  const performSearch = async (query) => {
     const normalizedQuery = String(query ?? '').trim()
 
     if (!isValidLocationQuery(normalizedQuery)) {
       return []
     }
-
-    // 예약된 디바운스 조회가 뒤늦게 겹치지 않도록 먼저 취소
-    stopScheduledSearch()
 
     const requestId = ++requestSequence
     isSuggesting.value = true
@@ -111,7 +90,32 @@ export const useLocationSearch = () => {
     }
   }
 
-  // 입력이 멈춘 뒤에만 조회하여 타이핑 중 불필요한 요청을 줄임
+  // VueUse: 입력이 멈춘 뒤에만 조회하여 타이핑 중 불필요한 요청을 줄임
+  const debouncedSearch = useDebounceFn(performSearch, SUGGESTION_DEBOUNCE_MS)
+
+  const stopScheduledSearch = () => {
+    debouncedSearch.cancel()
+  }
+
+  // 진행 중인 조회를 무효화 (다른 흐름이 화면을 차지할 때 사용)
+  const invalidate = () => {
+    stopScheduledSearch()
+    requestSequence += 1
+    isSuggesting.value = false
+  }
+
+  const reset = () => {
+    invalidate()
+    rawResults.value = []
+    hasRequested.value = false
+    errorMessage.value = ''
+  }
+
+  const search = (query) => {
+    stopScheduledSearch()
+    return performSearch(query)
+  }
+
   const scheduleSearch = (query) => {
     stopScheduledSearch()
 
@@ -119,9 +123,7 @@ export const useLocationSearch = () => {
       return
     }
 
-    debounceTimerId = window.setTimeout(() => {
-      search(query)
-    }, SUGGESTION_DEBOUNCE_MS)
+    debouncedSearch(query)
   }
 
   return {

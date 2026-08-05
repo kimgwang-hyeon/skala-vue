@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import WeatherHomeView from '@/views/WeatherHomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,7 +6,8 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: WeatherHomeView, // 기본 로딩
+      // PrimeVue 대시보드 UI도 현재 경로에서 필요할 때만 지연 로딩
+      component: () => import('@/views/WeatherHomeView.vue'),
       meta: { title: '날씨 대시보드' },
     },
     {
