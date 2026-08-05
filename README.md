@@ -1,8 +1,10 @@
 # SKALA Weather
 
-Vue 3 수업의 날씨 종합 실습을 실제 서비스 흐름으로 확장한 프로젝트입니다. PDF의 기본 과제인 **Directive → Composition API → Component → Vue Router → Pinia → Axios → UI Library**를 하나의 앱으로 연결하고, 검색·즐겨찾기·도시 비교·날씨 지도·테마 기능을 추가했습니다.
+Vue 3 수업의 날씨 종합 실습을 실제 서비스 흐름으로 확장한 프로젝트입니다. PDF의 기본 과제인
+**Directive → Composition API → Component → Vue Router → Pinia → Axios → UI Library**
+를 하나의 앱으로 연결하고, 검색·즐겨찾기·도시 비교·날씨 지도·테마 기능을 추가했습니다.
 
-[![SKALA Weather 대시보드](./docs/images/dashboard-overview.jpg)](./docs/images/dashboard-overview.jpg)
+[![SKALA Weather 대시보드](./docs/images/dashboard-overview.png)](./docs/images/dashboard-overview.png)
 
 > **핵심 차별점**: 한글 초성·자모 검색, 쉼표 다중 검색, 실제 대한민국 행정구역 검색, 현재 위치 날씨, 즐겨찾기, 도시 비교, 24시간·5일 예보, 날씨 지도, 라이트·다크 모드를 수업에서 학습한 Vue 기능으로 구현했습니다.
 
@@ -18,38 +20,42 @@ Vue 3 수업의 날씨 종합 실습을 실제 서비스 흐름으로 확장한 
 
 ## 주요 화면
 
-| 경로 | 화면 | 추가 구현 내용 |
-| --- | --- | --- |
-| `/` | 날씨 대시보드 | 실제 날씨, 한글 자모·다중 검색, 정렬, 요약 통계, 최근 검색, 도시 관리 |
-| `/explore/search` | 대한민국 도시 검색 | 카카오 지역 후보, 현재 위치, 검색 도시의 대시보드·즐겨찾기 등록 |
-| `/explore/map` | 날씨 지도 | Ventusky 지도와 OpenWeather 현재 날씨 연결 |
-| `/compare` | 도시 비교 | 두 도시 검색, 실시간 날씨 비교, 비교 결과 자동 계산 |
-| `/favorites` | 즐겨찾기 | 저장한 도시의 실제 날씨와 평균 기온 조회 |
-| `/weather/:cityId` | 상세 날씨 | 현재 관측, 24시간 예보, 5일 요약, 생활 참고 안내 |
+| 경로               | 화면               | 추가 구현 내용                                                        |
+| ------------------ | ------------------ | --------------------------------------------------------------------- |
+| `/`                | 날씨 대시보드      | 실제 날씨, 한글 자모·다중 검색, 정렬, 요약 통계, 최근 검색, 도시 관리 |
+| `/explore/search`  | 대한민국 도시 검색 | 카카오 지역 후보, 현재 위치, 검색 도시의 대시보드·즐겨찾기 등록       |
+| `/explore/map`     | 날씨 지도          | Ventusky 지도와 OpenWeather 현재 날씨 연결                            |
+| `/compare`         | 도시 비교          | 두 도시 검색, 실시간 날씨 비교, 비교 결과 자동 계산                   |
+| `/favorites`       | 즐겨찾기           | 저장한 도시의 실제 날씨와 평균 기온 조회                              |
+| `/weather/:cityId` | 상세 날씨          | 현재 관측, 24시간 예보, 5일 요약, 생활 참고 안내                      |
 
 ## 평가 포인트와 코드 바로가기
 
 평가자가 각 학습 개념의 실제 구현을 바로 확인할 수 있도록 GitHub 코드 줄에 연결했습니다.
 
-| 학습 내용 | 과제 외 추가 활용 | 구현 코드 |
-| --- | --- | --- |
-| Vue Directive | API 로딩·오류·빈 결과·정상 결과를 조건부 렌더링하고 예보·후보·도시 카드를 반복 렌더링했습니다. 카드 내부 동작에는 이벤트 버블링 방지를 적용했습니다. | [카드 조건·이벤트 수식어](./src/components/exercise/WeatherCard.vue#L95-L177) · [상세 예보 렌더링](./src/views/WeatherDetailView.vue#L388-L651) |
-| `computed` | 한글 초성·자모 검색, 쉼표 다중 검색, 필터·정렬, 대시보드 통계, 5일 예보 요약, 도시 비교 결과를 계산했습니다. | [한글 검색과 통계](./src/views/WeatherHomeView.vue#L195-L400) · [5일 예보 계산](./src/views/WeatherDetailView.vue#L233-L349) · [도시 비교 계산](./src/views/WeatherCompareView.vue#L177-L268) |
-| `watch` / `watchEffect` | 상태바·검색어 감시를 URL 동기화, API 재호출, 검색 디바운스, 브라우저 저장까지 확장했습니다. | [대시보드 URL 동기화](./src/views/WeatherHomeView.vue#L145-L193) · [수업 요구 로그](./src/views/WeatherHomeView.vue#L428-L440) · [검색·저장 감시](./src/views/WeatherSearchView.vue#L81-L131) |
-| Slot | `BaseDashboardCard`에 기본 Slot 외에도 `actions`, `footer` Named Slot을 추가했습니다. | [공통 카드 Slot](./src/components/exercise/BaseDashboardCard.vue#L1-L45) |
-| Props / Emits | `SearchBar`, `WeatherCard`, `LocationSuggestionList`를 표시 전용 자식으로 분리하고 부모가 상태를 관리하게 했습니다. | [SearchBar Props·Emits](./src/components/exercise/SearchBar.vue#L4-L102) · [WeatherCard Props·Emits](./src/components/exercise/WeatherCard.vue#L7-L177) |
-| Vue Router | 즐겨찾기·비교·지도·중첩 탐색 라우트, 동적 좌표 경로, URL query 복원, Lazy Loading을 추가했습니다. | [라우터 전체 설정](./src/router/index.js#L3-L92) · [앱 내비게이션](./src/App.vue#L13-L107) |
-| Pinia | 온도 단위뿐 아니라 대시보드 도시, 즐겨찾기, 검색한 도시, 테마를 모든 라우트에서 공유하고 저장했습니다. | [날씨 전역 상태](./src/stores/weatherStore.js#L140-L261) · [단위·테마 상태](./src/stores/configStore.js#L19-L91) |
-| Axios / API | OpenWeather 현재 날씨·예보·역지오코딩과 카카오 지역 검색을 좌표 중심으로 연결하고 병렬 요청·오류·오래된 응답을 처리했습니다. | [OpenWeather API](./src/api/weatherApi.js#L1-L51) · [Kakao Local API](./src/api/locationApi.js#L1-L20) · [검색 Composable](./src/composables/useLocationSearch.js#L29-L140) |
-| PrimeVue / VueUse | Element Plus 대신 PrimeVue를 적용하고 VueUse로 테마·저장소·검색 디바운스를 구성했습니다. | [PrimeVue 설정](./src/main.js#L14-L78) · [VueUse 테마·저장](./src/stores/configStore.js#L22-L80) · [VueUse 디바운스](./src/composables/useLocationSearch.js#L93-L127) |
+| 학습 내용               | 과제 외 추가 활용                                                                                                                                    | 구현 코드                                                                                                                                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vue Directive           | API 로딩·오류·빈 결과·정상 결과를 조건부 렌더링하고 예보·후보·도시 카드를 반복 렌더링했습니다. 카드 내부 동작에는 이벤트 버블링 방지를 적용했습니다. | [카드 조건·이벤트 수식어](./src/components/exercise/WeatherCard.vue#L95-L177) · [상세 예보 렌더링](./src/views/WeatherDetailView.vue#L388-L651)                                               |
+| `computed`              | 한글 초성·자모 검색, 쉼표 다중 검색, 필터·정렬, 대시보드 통계, 5일 예보 요약, 도시 비교 결과를 계산했습니다.                                         | [한글 검색과 통계](./src/views/WeatherHomeView.vue#L195-L400) · [5일 예보 계산](./src/views/WeatherDetailView.vue#L233-L349) · [도시 비교 계산](./src/views/WeatherCompareView.vue#L177-L268) |
+| `watch` / `watchEffect` | 상태바·검색어 감시를 URL 동기화, API 재호출, 검색 디바운스, 브라우저 저장까지 확장했습니다.                                                          | [대시보드 URL 동기화](./src/views/WeatherHomeView.vue#L145-L193) · [수업 요구 로그](./src/views/WeatherHomeView.vue#L428-L440) · [검색·저장 감시](./src/views/WeatherSearchView.vue#L81-L131) |
+| Slot                    | `BaseDashboardCard`에 기본 Slot 외에도 `actions`, `footer` Named Slot을 추가했습니다.                                                                | [공통 카드 Slot](./src/components/exercise/BaseDashboardCard.vue#L1-L45)                                                                                                                      |
+| Props / Emits           | `SearchBar`, `WeatherCard`, `LocationSuggestionList`를 표시 전용 자식으로 분리하고 부모가 상태를 관리하게 했습니다.                                  | [SearchBar Props·Emits](./src/components/exercise/SearchBar.vue#L4-L102) · [WeatherCard Props·Emits](./src/components/exercise/WeatherCard.vue#L7-L177)                                       |
+| Vue Router              | 즐겨찾기·비교·지도·중첩 탐색 라우트, 동적 좌표 경로, URL query 복원, Lazy Loading을 추가했습니다.                                                    | [라우터 전체 설정](./src/router/index.js#L3-L92) · [앱 내비게이션](./src/App.vue#L13-L107)                                                                                                    |
+| Pinia                   | 온도 단위뿐 아니라 대시보드 도시, 즐겨찾기, 검색한 도시, 테마를 모든 라우트에서 공유하고 저장했습니다.                                               | [날씨 전역 상태](./src/stores/weatherStore.js#L140-L261) · [단위·테마 상태](./src/stores/configStore.js#L19-L91)                                                                              |
+| Axios / API             | OpenWeather 현재 날씨·예보·역지오코딩과 카카오 지역 검색을 좌표 중심으로 연결하고 병렬 요청·오류·오래된 응답을 처리했습니다.                         | [OpenWeather API](./src/api/weatherApi.js#L1-L51) · [Kakao Local API](./src/api/locationApi.js#L1-L20) · [검색 Composable](./src/composables/useLocationSearch.js#L29-L140)                   |
+| PrimeVue / VueUse       | Element Plus 대신 PrimeVue를 적용하고 VueUse로 테마·저장소·검색 디바운스를 구성했습니다.                                                             | [PrimeVue 설정](./src/main.js#L14-L78) · [VueUse 테마·저장](./src/stores/configStore.js#L22-L80) · [VueUse 디바운스](./src/composables/useLocationSearch.js#L93-L127)                         |
 
 ## 실제 동작 화면
 
 이미지는 실제 API를 호출한 로컬 실행 화면입니다. 코드는 이미지로 캡처하지 않고 위의 줄 링크로 제공해 검색·복사·검증이 가능하게 했습니다. 이미지를 누르면 원본 크기로 확인할 수 있습니다.
 
-| 카카오 지역 검색 → 좌표 기반 날씨 조회 | 3시간 예보 → `computed` 5일 요약 |
-| --- | --- |
-| [![계룡시 카카오 검색 결과](./docs/images/kakao-search-result.jpg)](./docs/images/kakao-search-result.jpg) | [![computed 5일 날씨 요약](./docs/images/computed-daily-summary.jpg)](./docs/images/computed-daily-summary.jpg) |
+### 카카오 지역 검색 → 좌표 기반 날씨 조회
+
+[![계룡시 카카오 검색 결과](./docs/images/kakao-search-result.png)](./docs/images/kakao-search-result.png)
+
+### 3시간 예보 → `computed` 5일 요약
+
+[![computed 5일 날씨 요약](./docs/images/computed-daily-summary.png)](./docs/images/computed-daily-summary.png)
 
 - 왼쪽: `계룡` 입력 후 카카오 행정구역 후보에서 **계룡시**를 선택하고, 해당 좌표의 OpenWeather 현재 날씨를 조회한 결과입니다.
 - 오른쪽: OpenWeather의 3시간 간격 예보 40개를 날짜별로 묶어 최저·최고 기온, 최대 강수 확률, 대표 날씨를 계산한 결과입니다.
@@ -195,10 +201,10 @@ PrimeVue와 함께 **VueUse**도 적용했습니다.
 
 ## 검색을 두 흐름으로 분리한 이유
 
-| 내 도시 검색 | 대한민국 도시 검색 |
-| --- | --- |
-| 이미 API로 불러온 대시보드 목록을 빠르게 필터링합니다. | 카카오 API에서 실제 대한민국 행정구역과 좌표를 찾습니다. |
-| 초성·부분 자모·쉼표 다중 검색을 지원합니다. | 완성된 한글 두 글자 이상을 입력하면 후보를 보여줍니다. |
+| 내 도시 검색                                                         | 대한민국 도시 검색                                                        |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 이미 API로 불러온 대시보드 목록을 빠르게 필터링합니다.               | 카카오 API에서 실제 대한민국 행정구역과 좌표를 찾습니다.                  |
+| 초성·부분 자모·쉼표 다중 검색을 지원합니다.                          | 완성된 한글 두 글자 이상을 입력하면 후보를 보여줍니다.                    |
 | 입력 즉시 `computed`가 결과를 계산하며 추가 API를 호출하지 않습니다. | 입력을 잠시 멈춘 뒤 API를 호출하고 후보 선택 후 OpenWeather를 호출합니다. |
 
 전국의 모든 장소에 초성 검색을 직접 적용하려면 먼저 전체 지명 데이터가 필요합니다. 따라서 로컬 대시보드에서는 학습한 검색 알고리즘을 활용하고, 실제 도시 탐색에서는 카카오 후보 선택으로 정확한 좌표를 얻도록 역할을 나눴습니다.
